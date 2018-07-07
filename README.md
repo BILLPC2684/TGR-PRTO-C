@@ -9,7 +9,7 @@ Stable CPU EMU: `Yes`    (not completed)\
 Has Video:      `Mostly` (SDL | uses OpenGL)\
 Has Audio:      `No`\
 Has Inputs:     `No`     (comming up)\
-Has Network:    `No`\
+Has Network:    `No`
 ## NOTE: if the emulator crashes or glitch out, check your ROM before reporting(if someone else made the ROM then contact them)
 
 # Are ROMs free?
