@@ -37,7 +37,7 @@ to run the emulator, run: `./TGR-C <ROM>` (replace `<ROM>` with the filepath to 
 *undefined*
 
 # How to make ROMs
-the file `info.txt` has all the information you should need including the InstuctionSet, look at the wiki for more info...
+the file `TGR-info.txt` has all the information you should need including the InstuctionSet, look at the wiki for more info...
 
 # Want to join are discord server? it's free
 ##Invite link: https://discord.gg/PWAf8ek
