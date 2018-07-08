@@ -15,8 +15,7 @@
   SAV:    0x7FFFFF
   RAM:   0x7FFFFFF
   VRAM:  0x3FFFFFF
-  I/O:      0x2000
-  TOTAL: 0xD802000
+  TOTAL: 0xD800000
 
 --[[DVC-PORTS]]--
  .______.
