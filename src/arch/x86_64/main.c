@@ -20,6 +20,9 @@ int frames = 0;
 
 
 int main(int argc, char *argv[]) {
+ 
+ // CPU.debug = true;
+
  SDL_Init(SDL_INIT_VIDEO);
  SDL_CreateWindowAndRenderer(SW, SH, 2, &window, &GPU_SCREEN);
  SDL_SetRenderDrawColor(GPU_SCREEN, 0, 0, 0, 255);
@@ -40,24 +43,7 @@ int main(int argc, char *argv[]) {
  }
  
  if (CPU.debug == true) { printf("Debug Mode: Enabled\n"); } else { printf("Debug Mode: Disbaled\n"); }
- 
- // #include "./bin/components/0_GPU.c"
- // #include "./bin/components/1_INPUT.c"
- // #include "./bin/components/2_SOUND.c"
- // #include "./bin/components/3_NETWORK.c"
- //#include "./bin/components/4_.c"
- //#include "./bin/components/5_.c"
- //#include "./bin/components/6_.c"
- //#include "./bin/components/7_.c"
- //#include "./bin/components/8_.c"
- //#include "./bin/components/9_.c"
- //#include "./bin/components/A_.c"
- //#include "./bin/components/B_.c"
- //#include "./bin/components/C_.c"
- //#include "./bin/components/D_.c"
- //#include "./bin/components/E_.c"
- //#include "./bin/components/F_.c"
- 
+
  printf("\\Initialize Memory...\n");
  RAM  = calloc(RAMSIZ,  sizeof(*RAM));
  VRAM = calloc(VRAMSIZ, sizeof(*VRAM));
@@ -209,29 +195,29 @@ int main(int argc, char *argv[]) {
     break;
    case 0x0B:
     if (CPU.debug == true) { printf("JMP\n\n"); }     //|+|+|/|0x-XXXXXX|if C == 1 then IC = A..B else IC = IMM                                                     |
-    if (C == 1) {
-     CPU.IP = ((CPU.REGs[A] << 16) | CPU.REGs[B])-6;
-    } else {
-     CPU.IP = (IMM % 0x1000000)-6;
-    }
+    CPU.IP = ((CPU.REGs[A] << 16) | CPU.REGs[B])-6;
     break;
    case 0x0C:
+    if (CPU.debug == true) { printf("JMPIMM\n\n"); } 
+    CPU.IP = (IMM % 0x1000000)-6;
+    break;
+   case 0x0D:
     if (CPU.debug == true) { printf("CMP=: "); }    //|+|+|-|0x-------|if A == B: IC=IC+1(expected JMP) else IC=IC+2                                               |
     if (CPU.REGs[A] == CPU.REGs[B]) { if (CPU.debug == true) {  printf("True\n");} } else { if (CPU.debug == true) { printf("False\n");} CPU.IP = CPU.IP + 6; }
     break;
-   case 0x0D:
+   case 0x0E:
     if (CPU.debug == true) { printf("CMP<: "); }    //|+|+|-|0x-------|if A < B: IC=IC+1(expected JMP) else IC=IC+2                                                |
     if (CPU.REGs[A] < CPU.REGs[B]) { if (CPU.debug == true) {  printf("True\n");} } else { if (CPU.debug == true) { printf("False\n");} CPU.IP = CPU.IP + 6; }
     break;
-   case 0x0E:
+   case 0x0F:
     if (CPU.debug == true) { printf("CMP>: "); }    //|+|+|-|0x-------|if A > B: IC=IC+1(expected JMP) else IC=IC+2                                                |
     if (CPU.REGs[A] > CPU.REGs[B]) { if (CPU.debug == true) {  printf("True\n");} } else { if (CPU.debug == true) { printf("False\n");} CPU.IP = CPU.IP + 6; }
     break;
-   case 0x0F:
+   case 0x10:
     if (CPU.debug == true) { printf("RAMPOS\n"); }  //|+|+|/|0xXXXXXXX|RAMPointer = IMM                                                                            |
     CPU.RP = IMM;
     break;
-   case 0x10:
+   case 0x11:
     if (CPU.debug == true) { printf("RRAM\n"); }    //|+|/|/|0xXXXXXXX|if B == 1 then use VRAM instead of RAM / if C == 1 then IMM will replace with RAMPointer    |
     if (B == 1) {
      if (C == 1) {
@@ -247,7 +233,7 @@ int main(int argc, char *argv[]) {
      }
     }
     break;
-   case 0x11:
+   case 0x12:
     if (CPU.debug == true) { printf("WRAM\n"); }    //|+|/|/|0xXXXXXXX|if B == 1 then index VRAM else RAM / if C == 1 then IMM will replace with RAMPointer        |
     if (B == 1) {
      if (C == 1) {
@@ -263,33 +249,33 @@ int main(int argc, char *argv[]) {
      }
     }
     break;
-   case 0x12:
+   case 0x13:
     if (CPU.debug == true) { printf("RSAV\n"); }    //|+|+|+|0x-------|C = SAV.data[A..B]                                                                          |
     CPU.REGs[C] = SAV.data[(CPU.REGs[A] << 16) | CPU.REGs[B]];
     break;
-   case 0x13:
+   case 0x14:
     if (CPU.debug == true) { printf("IRSAV\n"); }   //|+|-|-|0x-XXXXXX|A = SAV.data[IMM]                                                                           |
     CPU.REGs[A] = (SAV.data[IMM] % 0x1000000);
     break;
-   case 0x14:
+   case 0x15:
     if (CPU.debug == true) { printf("WSAV\n"); }    //|+|-|-|0x-------|SAV.data[A..B] = C                                                                          |
     SAV.data[(CPU.REGs[A] << 16) | CPU.REGs[B]] = CPU.REGs[C];
     break;
-   case 0x15:
+   case 0x16:
     if (CPU.debug == true) { printf("IWSAV\n"); }   //|+|+|+|0x-XXXXXX|SAV.data[IMM] = A                                                                           |
     SAV.data[IMM] = (CPU.REGs[A] % 0x1000000);
     break;
-   case 0x16:
+   case 0x17:
     if (CPU.debug == true) { printf("RROM\n"); }    //|+|+|+|0x-------|C = ROM.data[A..B]                                                                          |
     CPU.REGs[C] = ROM.data[(((CPU.REGs[A] << 16) % 0x1000) | CPU.REGs[B]) % CPU.ISz];
 //    printf(">>>>>>  Adr:0x%x/%d, data:0x%x (ReadROM)  <<<<<<\n",(((CPU.REGs[A] << 16) % 0x1000) | CPU.REGs[B])%CPU.ISz,(((CPU.REGs[A] << 16) % 0x1000) | CPU.REGs[B])%CPU.ISz, CPU.REGs[C]);
     break;
-   case 0x17:
+   case 0x18:
     if (CPU.debug == true) { printf("IRROM\n"); }   //|+|-|-|0x-XXXXXX|A = ROM.data[IMM]                                                                           |
     CPU.REGs[A] = ROM.data[IMM % CPU.ISz];
 //    printf(">>>>>>  Adr:0x%x/%d, data:0x%x (ImmReadROM)  <<<<<<\n",IMM % CPU.ISz,IMM % CPU.ISz, CPU.REGs[A]);
     break;
-   case 0x18:
+   case 0x19:
     if (CPU.debug == true) { printf("HALT\n"); }    //|-|-|-|0x------X|halts index IMM located in [[HALT-INFO]]                                                    |
     switch(IMM) {
      case 0x0: //|nothing                                 |N/A        |
@@ -333,18 +319,18 @@ int main(int argc, char *argv[]) {
       CPU.IP  = 0; CPU.IPS = 0; CPU.TI  = 0;
       break;
     } break;
-   case 0x19:
+   case 0x1a:
     if (CPU.debug == true) { printf("PRINT\n"); }   //|+|-|-|0x-------|prints A in emulator terminal(for debugging ROMs only)                                      |
     if (CPU.REGs[A] > 9999) {
      printf(">> %d\t(0x%x)\n",CPU.REGs[A],CPU.REGs[A]);
     } else {
      printf(">> %d\t\t(0x%x)\n",CPU.REGs[A],CPU.REGs[A]);
     } break;
-   case 0x1A:
+   case 0x1b:
     if (CPU.debug == true) { printf("FLAGS\n"); }   //|+|-|-|0x------X|A = Flags[IMM]                                                                              |
     CPU.REGs[A] = CPU.flag[IMM];
     break;
-   case 0x1B:
+   case 0x1c:
     if (CPU.debug == true) { printf("DVCSEND\n"); } //|+|-|-|0x----XXX|send message to device IMM[3], IMM[1-2] are for device oICode                               |
     switch ((IMM >> 8) % 0x10) {
      case 0: //GPU
@@ -382,19 +368,19 @@ int main(int argc, char *argv[]) {
       break;
     }
     break;
-   case 0x1C:
+   case 0x1d:
     if (CPU.debug == true) { printf("DVCRECV\n"); } //|+|-|-|0x----XXX|same as DVCSEND but recive then send                                                        |
     break;
-   case 0x1D:
+   case 0x1e:
     if (CPU.debug == true) { printf("ICOUT\n"); }   //|+|+|-|0x-------|A,B = IC(32-bit for 24-bit)                                                                 |
     CPU.REGs[A] = CPU.IP & 0xFF;
     CPU.REGs[B] = CPU.IP >> 16;
     break;
-   case 0x1E:
+   case 0x1f:
     if (CPU.debug == true) { printf("COPY\n"); }    //|+|+|-|0x-------|A = B                                                                                       |
     CPU.REGs[B] = CPU.REGs[A];
     break;
-   case 0x1F:
+   case 0x20:
     if (CPU.debug == true) { printf("EXECUTE\n"); } //|-|-|-|0xXXXXXXX|execute location = IMM[6] and IMM[0-5]                                                      |
     printf("EMU NOTTICE: "); CPU.IP = IMM-6;
     switch(A) {
@@ -415,12 +401,9 @@ int main(int argc, char *argv[]) {
       break;
     } if (CPU.debug == true) { printf(" at 0x%x/%x...\n",CPU.IP+6,CPU.ISz); } else { printf("...\n"); }
     break;
-   case 0x20:
+   case 0x21:
     if (CPU.debug == true) { printf("RBIOS\n"); }    //|+|+|+|0x-------|C = BIOS.data[A..B]                                                                         |
     CPU.REGs[C] = BIOS.data[(CPU.REGs[A] << 16) | CPU.REGs[B]];
-    break;
-   case 0x21:
-    
     break;
    case 0x22:
     
