@@ -1,10 +1,7 @@
 
-
-
 mov a,1
 mov b,0
 mov c,39602
-
 
 loop0:
 	add a,b,a
