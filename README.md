@@ -41,3 +41,74 @@ the file `TGR-info.txt` has all the information you should need including the In
 
 # Want to join are discord server? it's free
 ##Invite link: https://discord.gg/PWAf8ek
+
+
+
+# compiling assembly programs:
+
+To compile programs for TGR, a python script is included named compile_TGRASM.py.
+It takes 2 arguments: the first is the input file and the second is the output file.
+
+The assembly code can contain any of the following instructions:
+
+
+- labels: (any word with a : after it, just like nasm assembly)
+- jmp <labelname> 
+- mov <destination(reg)> <source(reg or int)>
+- disp <a(reg)>
+- cmpeq <a(reg)> <b(reg)> (skips next instruction if false)
+- cmpgt <a(reg)> <b(reg)> (skips next instruction if false)
+- cmplt <a(reg)> <b(reg)> (skips next instruction if false)
+- push <a(reg or int)>
+- pop <a(reg)>
+- swap (swaps the top of the stack with the item below)
+- call <labelname>
+- ret
+- hlt (stop the program!)
+
+# USE CALLFN IN STEAD OF CALL!
+
+In general, do not use the call instruction. Use the supplied macro in std.asm (included with %include assembly/std.asm) called CALLFN(). It will take care of saving and restoring all registers so they won't bestroyed by the called function.
+
+When making a function one should follow the following protocol:
+
+```assembly
+functionname:
+	pop g ;save the return adress in an unused register (g in this case)
+
+	<some code not using the g register here>
+
+	mov h,<return value> ;the h register is preserved by function calls so return values can work
+
+	push g ;push g to the top of the stack so ret knows where to return to
+	ret
+```
+
+a typical function call routine:
+```assembly
+CALLFN(square,5)
+mov a,h ;move out of h just to be sure, h is often used for return values so you never know what will overwrite it
+disp a
+hlt
+
+mult:
+	pop g
+
+	pop a
+	pop b
+
+	mov c,0
+	mov d,0
+
+	multloop0:
+		cmpeq d,b
+		jmp [multend0]
+		add c,a,c
+		dec b
+		jmp [multloop0]
+multend0:
+	push g
+
+	mov h,c
+	ret
+```

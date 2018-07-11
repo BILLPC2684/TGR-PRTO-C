@@ -41,11 +41,6 @@
 #define APPLYXn(...) APPLYX_(XPASTE(APPLYX, PP_NARG(__VA_ARGS__)), __VA_ARGS__)
 
 
-#define ATTRIB_A "a"
-#define ATTRIB_B "b"
-#define ATTRIB_C "c"
-
-
 #define X(a) XPASTE(XPASTE(push __SPACE__, a),__NEWLINE__)
 
 #define CALLFN(name,...) call [saveregs] __NEWLINE__\
