@@ -48,9 +48,9 @@ int main(int argc, char *argv[]) {
 
  printf("\\Initialize Memory...\n");
  RAM  = calloc(RAMSIZ,  sizeof(*RAM));
- if (!RAM){printf("MALLOC FAILED");exit(1);}
+ if (!RAM){printf("MALLOC FAILED\n");exit(1);}
  VRAM = calloc(VRAMSIZ, sizeof(*VRAM));
- if (!VRAM){printf("MALLOC FAILED");exit(1);}
+ if (!VRAM){printf("MALLOC FAILED\n");exit(1);}
  //ROM  = calloc(ROMSIZ,  sizeof(*ROM));
  //BIOS = calloc(BIOSIZ,  sizeof(*BIOS));
 
@@ -70,8 +70,10 @@ int main(int argc, char *argv[]) {
  char* FN = argv[1];
  FileStruct ROM  = load(FN,0);
  if (ROM.found == false) { return 0; }
- char SN[strlen(FN)];
+ 
+ char SN[strlen(FN)+1];
  crop(SN, FN, 0, strlen(FN)-4);
+ printf("%s\n",SN);
  strcat(SN, ".sav");
  printf("%s",SN);
  FileStruct SAV  = load(SN,1);

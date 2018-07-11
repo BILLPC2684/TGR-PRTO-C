@@ -59,7 +59,10 @@ int dumpData(char *name, FileStruct file, int size) {
 void crop(char *dst, char *src, size_t mn, size_t mx) {
  const int len = mx - mn;
  src += mn;
- for (int i = 0; i < len; i++) dst[i] = src[i];
+ for (int i = 0; i < len; i++){
+  dst[i] = src[i];
+ }
+ dst[len] = '\0';
 }
 
 FileStruct load(char *adress, int make) {
