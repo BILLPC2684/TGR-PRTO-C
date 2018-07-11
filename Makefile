@@ -9,7 +9,7 @@ testfile =
 
 linker = gcc
 
-CFLAGS = -Wall -cpp -O3 -g $(shell sdl2-config --cflags) 
+CFLAGS = -Wall -cpp -O3 -g $(shell sdl2-config --cflags) --std=c99
 CPPFLAGS = -Wall -c --std=c++11
 CFLAGS += $(foreach dir, $(includedirs), -I./$(dir))
 CPPFLAGS += $(foreach dir, $(includedirs), -I./$(dir))
