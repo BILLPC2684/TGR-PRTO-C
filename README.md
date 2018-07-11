@@ -106,4 +106,9 @@ mult:
 		add c,a,c
 		dec b
 		jmp [multloop0]
+multend0:
+	push g
+
+	mov h,c
+	ret
 ```
