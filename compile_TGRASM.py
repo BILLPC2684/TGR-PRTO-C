@@ -74,6 +74,54 @@ class add(instruction):
 	def handle(self):
 		pass
 
+class inc(instruction):
+	def prehandle(self,*args):
+		if len(args) != 1:
+			raise OpcodeError("expected 1 operand, got {}".format(len(args)))
+		self.alias = add()
+		return self.alias.prehandle(args[0],1,args[0])
+
+
+	def handle(self):
+		self.instr = self.alias.instr
+
+class dec(instruction):
+	def prehandle(self,*args):
+		if len(args) != 1:
+			raise OpcodeError("expected 1 operand, got {}".format(len(args)))
+		self.alias = sub()
+		return self.alias.prehandle(args[0],"1",args[0])
+
+	def handle(self):
+		self.instr = self.alias.instr
+
+class call(instruction):
+	def prehandle(self,*args):
+		if len(args) != 1:
+			raise OpcodeError("expected 1 operand, got {}".format(len(args)))		
+
+		if args[0].startswith("[") and args[0].endswith("]"):
+			self.label = args[0][1:-1]
+			return 6				
+		else:
+			raise OpcodeError("not a label: {}.".format(args[0]))		
+		
+	def handle(self):
+		if self.label in labels:
+			self.instruction(0x25,0x00,0x00,(labels[self.label]&0xff0000)>>16,(labels[self.label]&0x00ff00)>>8,labels[self.label]&0x0000ff)
+		else:
+			raise OpcodeError("could not find label {}.".format(self.label))
+
+class ret(instruction):
+	def prehandle(self,*args):
+		if len(args) != 0:
+			raise OpcodeError("expected 0 operands, got {}".format(len(args)))		
+		self.instruction(0x26)				
+		return 6
+
+	def handle(self):
+		pass
+
 class sub(instruction):
 	def prehandle(self,*args):
 		if len(args) != 3:
@@ -125,6 +173,40 @@ class rrom(instruction):
 	def handle(self):
 		pass
 
+class push(instruction):
+	def prehandle(self,*args):
+		if len(args) != 1:
+			raise OpcodeError("expected 1 operand, got {}".format(len(args)))
+
+		if reg(args[0]) < 0:
+			try:
+				res = int(args[0],0)
+			except:
+				raise OpcodeError("invalid operand {}. should be register name or int".format(args[0]))
+			self.instruction(0x23,0x00,0x00,0x00,(res&0xff00)>>8,res&0x00ff)
+			return 6
+		else:
+			self.instruction(0x24,combinetochar(0x00,reg(args[0])))
+			return 6
+
+	def handle(self):
+		pass
+
+class pop(instruction):
+	def prehandle(self,*args):
+		if len(args) != 1:
+			raise OpcodeError("expected 1 operand, got {}".format(len(args)))
+
+		if reg(args[0]) < 0:
+			raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
+		else:
+			self.instruction(0x22,combinetochar(0x00,reg(args[0])))
+		return 6
+
+
+	def handle(self):
+		pass
+
 class rbios(instruction):
 	def prehandle(self,*args):
 		if len(args) != 3:
@@ -151,7 +233,7 @@ class hlt(instruction):
 		if len(args) != 0:
 			raise OpcodeError("expected 0 operands, got {}".format(len(args)))
 		
-		self.instruction(0x19)
+		self.instruction(0x19,0x00,0x00,0x00,0x00,0x01)
 		return 6
 
 
@@ -206,6 +288,17 @@ class split(instruction):
 	def handle(self):
 		pass
 
+class swap(instruction):
+	def prehandle(self,*args):
+		if len(args) != 0:
+			raise OpcodeError("expected 0 operands, got {}".format(len(args)))
+		else:
+			self.instruction(0x27)
+			return 6
+
+
+	def handle(self):
+		pass
 
 class mov(instruction):
 	def prehandle(self,*args):
@@ -277,7 +370,7 @@ class dsend(instruction):
 class cmpeq(instruction):
 	def prehandle(self,*args):
 		if len(args) != 2:
-			raise OpcodeError("expected 3 operands, got {}".format(len(args)))		
+			raise OpcodeError("cmpeq: expected 2 operands, got {}".format(len(args)))		
 
 		if reg(args[0]) < 0:
 			raise OpcodeError("invalid operand {}. should be register name".format(args[0]))		
@@ -296,7 +389,7 @@ class cmpeq(instruction):
 class cmplt(instruction):
 	def prehandle(self,*args):
 		if len(args) != 2:
-			raise OpcodeError("expected 3 operands, got {}".format(len(args)))		
+			raise OpcodeError("cmplt: expected 2 operands, got {}".format(len(args)))		
 
 		if reg(args[0]) < 0:
 			raise OpcodeError("invalid operand {}. should be register name".format(args[0]))		
@@ -316,7 +409,7 @@ class cmplt(instruction):
 class cmpgt(instruction):
 	def prehandle(self,*args):
 		if len(args) != 2:
-			raise OpcodeError("expected 3 operands, got {}".format(len(args)))		
+			raise OpcodeError("cmpgt: expected 2 operands, got {}".format(len(args)))		
 
 		if reg(args[0]) < 0:
 			raise OpcodeError("invalid operand {}. should be register name".format(args[0]))		
@@ -364,14 +457,26 @@ class disp(instruction):
 		pass
 
 
+def include(filestr):
+	for i in re.finditer(r"\#include +(.+)",filestr):
+		try:
+			with open(i.group(1).strip(),"r") as f:
+				file = f.read()
+			filestr = filestr[:i.start()] + include(file) + filestr[i.end():]
+
+		except FileNotFoundError:
+			print("couldn't include {}: file not found".format(repr(i.group(1))))
+
+	return filestr
+
 def main(fnamein,fnameout):
 
 	global labels
 	instructions = []
 	dataobjs = []
-
 	with open(fnamein,"r") as f:
-		file = f.read()
+		file = f.read()	
+	file = include(file)
 
 	if "#NOCHECKSUM" in file:
 		checksum=False

@@ -117,11 +117,11 @@ loop1:
 	cmpgt b,d
 	jmp [reset_x]
 
-	dsend b,0x0,0x00
-	dsend c,0x0,0x01
+	dsend b,0x0,0x00  ;set xpos
+	dsend c,0x0,0x01  ;set ypos
 	mov g,0
-	rbios g, a,f
-	split f,f,g
+	rbios g, a,f      ;read pixel
+	split f,f,g       ;split it into lower and upper
 	sub f,1,f
 	dsend f,0x0,0x06
 	dsend c,0x0,0x01
@@ -137,7 +137,6 @@ reset_x:
 	mov b,0
 	add c,1,c
 	jmp [loop0]
-
 
 ;this code seems strange to me, but it does result
 ;in a working bios....????

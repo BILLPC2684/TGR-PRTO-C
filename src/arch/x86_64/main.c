@@ -22,6 +22,8 @@ int frames = 0;
 int main(int argc, char *argv[]) {
  
  // CPU.debug = true;
+ //puts cpu in debug mode when BIOS has executed and the main rom is initialized
+ bool stopatloadrom = false;
 
  SDL_Init(SDL_INIT_VIDEO);
  SDL_CreateWindowAndRenderer(SW, SH, 2, &window, &GPU_SCREEN);
@@ -46,15 +48,24 @@ int main(int argc, char *argv[]) {
 
  printf("\\Initialize Memory...\n");
  RAM  = calloc(RAMSIZ,  sizeof(*RAM));
+ if (!RAM){printf("MALLOC FAILED");exit(1);}
  VRAM = calloc(VRAMSIZ, sizeof(*VRAM));
+ if (!VRAM){printf("MALLOC FAILED");exit(1);}
  //ROM  = calloc(ROMSIZ,  sizeof(*ROM));
  //BIOS = calloc(BIOSIZ,  sizeof(*BIOS));
+
+ //initialize BP to the end of ram and SP to the same point
+ CPU.BP = RAMSIZ-1;
+ CPU.SP = CPU.BP; 
+
+ //zero reg A-H
  for (int i=0;i<8;i++) { CPU.REGs[i] = 0; }
- printf(" \\0x%x\\%d\tBytes(%d MB)\tof RAM was allocated...\n",RAMSIZ,RAMSIZ,(RAMSIZ/1024/1024)+1);
+ printf(" \\0x%x\\%d\tBytes(%d MB)\tof RAM were allocated...\n",RAMSIZ,RAMSIZ,(RAMSIZ/1024/1024)+1);
  printf(" \\0x%x\\%d\tBytes(%d MB)\tof VideoRAM was allocated...\n",VRAMSIZ,VRAMSIZ,(VRAMSIZ/1024/1024)+1);
  CPU.running = true; CPU.TI = 0;
  
  FileStruct BIOS = load("./bin/BIOS.tgr",0);
+ // FileStruct BIOS = load("./bin/simplebios.tgr",0);
  if (argc < 2) { printf("\nEMU Error: Requesting ROM path...\n\n"); return 0; }
  char* FN = argv[1];
  FileStruct ROM  = load(FN,0);
@@ -99,8 +110,22 @@ int main(int argc, char *argv[]) {
     } else if (CPU.REGs[i] < 0x1000) {  printf("%c:0x0%x",REG[i],CPU.REGs[i]);
     } else if (CPU.REGs[i] < 0x10000) { printf("%c:0x%x",REG[i],CPU.REGs[i]);
     } if (i < 7) { printf(", "); } 
-   } printf("]\n \\instruction: "); //,CPU.REGs[0],CPU.REGs[1],CPU.REGs[2],CPU.REGs[3],CPU.REGs[4],CPU.REGs[5],CPU.REGs[6],CPU.REGs[7]);
+   }
+   printf("]\nstack:\n["); 
+   for (int i = CPU.SP+1; i <= CPU.BP; ++i){
+     if((i+1)%2==0){
+        printf(" 0x");
+      }
+      printf("%02x",RAM[i]);
+      if(i%16==0 && i != 0){
+        printf("\n");
+      }
+   }
+
+   printf("]\n \\instruction: "); //,CPU.REGs[0],CPU.REGs[1],CPU.REGs[2],CPU.REGs[3],CPU.REGs[4],CPU.REGs[5],CPU.REGs[6],CPU.REGs[7]);
   }
+
+
 //  printf("IC:0x%x/%d | 0x%x\n",CPU.IP,CPU.IP,CPU.IS[CPU.IP]);
   switch(CPU.IS[CPU.IP]) {
    case 0x00:
@@ -382,7 +407,7 @@ int main(int argc, char *argv[]) {
     break;
    case 0x20:
     if (CPU.debug == true) { printf("EXECUTE\n"); } //|-|-|-|0xXXXXXXX|execute location = IMM[6] and IMM[0-5]                                                      |
-    printf("EMU NOTTICE: "); CPU.IP = IMM-6;
+    printf("EMU NOTICE: "); CPU.IP = IMM-6;
     switch(A) {
      case 0x0: //executes BIOS
       printf("Switching to BIOS execute");
@@ -390,6 +415,11 @@ int main(int argc, char *argv[]) {
       CPU.ISz = BIOS.size;
       break;
      case 0x1: //executes ROM
+      if(stopatloadrom){
+        printf("loading rom...\n");
+        CPU.debug = true;
+        getchar();
+      } 
       printf("Switching to ROM execute");
       CPU.IS  = ROM.data;
       CPU.ISz = ROM.size;
@@ -406,22 +436,76 @@ int main(int argc, char *argv[]) {
     CPU.REGs[C] = BIOS.data[(CPU.REGs[A] << 16) | CPU.REGs[B]];
     break;
    case 0x22:
-    
+    if (CPU.debug == true) { printf("POP "); }
+    if(CPU.SP+1 < CPU.BP){
+      CPU.SP+=2;
+    }else{
+      printf("PANIC! stack empty\n");
+      exit(1);
+    }
+    CPU.REGs[A] = (uint16_t)RAM[CPU.SP] | (((uint16_t)RAM[CPU.SP-1])<<8);
+    if (CPU.debug == true) { printf("%i\n",CPU.REGs[A]);}
     break;
    case 0x23:
-    
+    if (CPU.debug == true) { printf("PUSHI "); }
+    RAM[CPU.SP] = (uint8_t)(IMM & 0xff);
+    CPU.SP--;
+    RAM[CPU.SP] = (uint8_t)(IMM >> 8);
+    CPU.SP--;    
+    if (CPU.debug == true) { printf("%i\n",IMM); }
     break;
    case 0x24:
-    
+    if (CPU.debug == true) { printf("PUSH "); }
+    RAM[CPU.SP] = (uint8_t)(CPU.REGs[A] & 0xff);
+    CPU.SP--;
+    RAM[CPU.SP] = (uint8_t)(CPU.REGs[A] >> 8);
+    CPU.SP--;
+    if (CPU.debug == true) { printf("%i\n",CPU.REGs[A]); }
     break;
    case 0x25:
-    
+    if (CPU.debug == true) { printf("CALL "); }
+    RAM[CPU.SP] = (uint8_t)(CPU.IP & 0xff);
+    CPU.SP--;
+    RAM[CPU.SP] = (uint8_t)((CPU.IP) >> 8);
+    CPU.SP--;
+    if (CPU.debug == true) { printf("%i\n",CPU.IP);}
+    CPU.IP = (IMM % 0x1000000)-6;
     break;
    case 0x26:
-    
+    if (CPU.debug == true) { printf("RET "); }
+    if(CPU.SP+1 < CPU.BP){
+      CPU.SP+=2;
+    }else{
+      printf("PANIC! stack empty\n");
+      exit(1);
+    }
+    CPU.IP = (uint16_t)RAM[CPU.SP] | (((uint16_t)RAM[CPU.SP-1])<<8);
+    if (CPU.debug == true) { printf("%i\n",CPU.IP);}
     break;
    case 0x27:
-    
+    if (CPU.debug == true) { printf("SWAPTOP "); }
+    if(CPU.SP+1 < CPU.BP){
+      CPU.SP+=2;
+    }else{
+      printf("PANIC! stack empty\n");
+      exit(1);
+    }
+    uint16_t tmp1 = (uint16_t)RAM[CPU.SP] | (((uint16_t)RAM[CPU.SP-1])<<8);
+    if(CPU.SP+1 < CPU.BP){
+      CPU.SP+=2;
+    }else{
+      printf("PANIC! stack empty\n");
+      exit(1);
+    }
+    uint16_t tmp2 = (uint16_t)RAM[CPU.SP] | (((uint16_t)RAM[CPU.SP-1])<<8);
+    RAM[CPU.SP] = (uint8_t)(tmp1 & 0xff);
+    CPU.SP--;
+    RAM[CPU.SP] = (uint8_t)(tmp1 >> 8);
+    CPU.SP--;    
+    RAM[CPU.SP] = (uint8_t)(tmp2 & 0xff);
+    CPU.SP--;
+    RAM[CPU.SP] = (uint8_t)(tmp2 >> 8);
+    CPU.SP--;  
     break;
    case 0x28:
     

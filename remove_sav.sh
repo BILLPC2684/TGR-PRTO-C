@@ -1,0 +1,1 @@
+find . -name "*.sav*" -type f -delete

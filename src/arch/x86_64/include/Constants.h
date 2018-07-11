@@ -4,7 +4,7 @@
 #define CONSTANTS_H
 
 
-#define RAMSIZ  (0x7FFFFFF)
+#define RAMSIZ  (0x7FFFFF)
 #define VRAMSIZ (0x3FFFFFF)
 #define ROMSIZ  (0xFFFFFF)
 #define SAVSIZ  (0x7FFFFF)
