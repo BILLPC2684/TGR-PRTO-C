@@ -1,5 +1,5 @@
 
-
+%include assembly/callfn.asm
 
 saveregs:
 	pop h
@@ -54,12 +54,15 @@ square:
 
 	pop a
 
-	call [saveregs]
-	push a
-	push a
-
-	call [mult]
-	call [restoreregs]
+	CALLFN(mult,a,a)
 
 	push g
 	ret
+
+; :
+; 	pop g
+
+
+
+; 	push g
+; 	ret

@@ -7,11 +7,7 @@ functiontest_program_start:
 
 
 
-call [saveregs]
-push 5
-call [square]
-call [restoreregs]
-
+CALLFN(square,5)
 mov a,h
 disp a
 

@@ -497,6 +497,18 @@ def main(fnamein,fnameout):
 
 	file = datadef.sub("",file)
 
+	with open("temp.txt","w") as f:
+		f.write(file)
+	os.system("gcc -E -x c -P -C --std=c99 temp.txt >temp1.txt")
+	with open("temp1.txt","r") as f:
+		file = f.read()
+
+	commentrm = re.compile(r"/\*.*\*/",re.MULTILINE | re.DOTALL)
+	file = commentrm.sub("",file).replace("__SPACE__",' ').replace("__NEWLINE__",'\n')
+	# print(file)
+	os.remove("temp.txt")
+	os.remove("temp1.txt")
+
 	lines = [i.split(";")[0] for i in file.split("\n")]
 
 	for linenum,i in enumerate(lines):
