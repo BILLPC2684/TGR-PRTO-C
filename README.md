@@ -64,6 +64,7 @@ The assembly code can contain any of the following instructions:
 - swap (swaps the top of the stack with the item below)
 - call <labelname>
 - ret
+- hlt (stop the program!)
 
 # USE CALLFN IN STEAD OF CALL!
 
@@ -81,4 +82,28 @@ functionname:
 
 	push g ;push g to the top of the stack so ret knows where to return to
 	ret
+```
+
+a typical function call routine:
+```assembly
+CALLFN(square,5)
+mov a,h ;move out of h just to be sure, h is often used for return values so you never know what will overwrite it
+disp a
+hlt
+
+mult:
+	pop g
+
+	pop a
+	pop b
+
+	mov c,0
+	mov d,0
+
+	multloop0:
+		cmpeq d,b
+		jmp [multend0]
+		add c,a,c
+		dec b
+		jmp [multloop0]
 ```
