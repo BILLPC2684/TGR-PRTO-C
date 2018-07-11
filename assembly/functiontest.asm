@@ -2,7 +2,7 @@
 
 
 jmp [functiontest_program_start]
-#include assembly/std.asm
+%include assembly/std.asm
 functiontest_program_start:
 
 

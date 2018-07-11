@@ -1,5 +1,5 @@
 
-#NOCHECKSUM
+%NOCHECKSUM
 
 
 mov a,0

@@ -28,7 +28,7 @@ restoreregs:
 
 
 mult:
-	pop h
+	pop g
 
 	pop a
 	pop b
@@ -44,7 +44,7 @@ mult:
 		jmp [multloop0]
 
 multend0:
-	push h
+	push g
 
 	mov h,c
 	ret
@@ -59,7 +59,6 @@ square:
 	push a
 
 	call [mult]
-
 	call [restoreregs]
 
 	push g

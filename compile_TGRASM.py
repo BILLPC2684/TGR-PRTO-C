@@ -458,7 +458,7 @@ class disp(instruction):
 
 
 def include(filestr):
-	for i in re.finditer(r"\#include +(.+)",filestr):
+	for i in re.finditer(r"\%include +(.+)",filestr):
 		try:
 			with open(i.group(1).strip(),"r") as f:
 				file = f.read()
@@ -478,9 +478,9 @@ def main(fnamein,fnameout):
 		file = f.read()	
 	file = include(file)
 
-	if "#NOCHECKSUM" in file:
+	if "%NOCHECKSUM" in file:
 		checksum=False
-		file = file.replace("#NOCHECKSUM","")
+		file = file.replace("%NOCHECKSUM","")
 	else:
 		checksum=True
 	adress = (4 if checksum else 0)+6
