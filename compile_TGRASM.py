@@ -79,7 +79,7 @@ class inc(instruction):
 		if len(args) != 1:
 			raise OpcodeError("expected 1 operand, got {}".format(len(args)))
 		self.alias = add()
-		return self.alias.prehandle(args[0],1,args[0])
+		return self.alias.prehandle(args[0],"1",args[0])
 
 
 	def handle(self):

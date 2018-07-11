@@ -59,10 +59,53 @@ square:
 	push g
 	ret
 
-; :
-; 	pop g
+div:
+	pop g
+
+	pop b
+	pop a
+
+	mov c,a
+	mov d,0
+
+	divloop0:
+		sub a,b,a
+		inc d
+
+		cmpgt a,c
+		jmp [divend0]
+
+		mov c,a
+		jmp [divloop0]
+
+	divend0:
+		sub d,1,h
+
+	push g
+	ret
 
 
+mod:
+	pop g
 
-; 	push g
-; 	ret
+	pop b
+	pop a
+
+	mov c,a
+	mov d,0
+
+	divloop0:
+		sub a,b,a
+		inc d
+
+		cmpgt a,c
+		jmp [divend0]
+
+		mov c,a
+		jmp [divloop0]
+
+	divend0:
+		mov h,c
+
+	push g
+	ret
