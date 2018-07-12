@@ -1,3 +1,4 @@
+![alt text](https://raw.githubusercontent.com/BILLPC2684/TGR-PRTO-C/master/bin/TGR-logo(8x).png)
 # TGR-PRTO-C
 TheGameRazer is a custom retro 16-bit style emulator made in C,\
 this is still in prototype stages...
@@ -40,9 +41,9 @@ to run the emulator, run: `./TGR-C <ROM>` (replace `<ROM>` with the filepath to 
 the file `TGR-info.txt` has all the information you should need including the InstuctionSet, look at the wiki for more info...
 
 # Want to join are discord server? it's free
-##Invite link: https://discord.gg/PWAf8ek
-
-
+## Invite link: https://discord.gg/PWAf8ek
+<br>
+<br>
 
 # compiling assembly programs:
 
