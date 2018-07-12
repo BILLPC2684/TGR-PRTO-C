@@ -54,16 +54,16 @@ class add(instruction):
 			raise OpcodeError("expected 3 operands, got {}".format(len(args)))
 
 		if reg(args[0]) < 0:
-			raise OpcodeError("invalid operand {}. should be register name".format(i))
+			raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
 
 		if reg(args[2]) < 0:
-			raise OpcodeError("invalid operand {}. should be register name".format(i))
+			raise OpcodeError("invalid operand {}. should be register name".format(args[1]))
 		
 		if reg(args[1]) < 0:
 			try:
 				res = int(args[1],0)
 			except:
-				raise OpcodeError("invalid operand {}. should be register name or int".format(i))
+				raise OpcodeError("invalid operand {}. should be register name or int".format(args[2]))
 			self.instruction(0x01,combinetochar(0x00,reg(args[0])),combinetochar(0x0,reg(args[2])),0x00,(res&0xff00)>>8,res&0x00ff)
 			return 6
 		else:
@@ -79,7 +79,7 @@ class inc(instruction):
 		if len(args) != 1:
 			raise OpcodeError("expected 1 operand, got {}".format(len(args)))
 		self.alias = add()
-		return self.alias.prehandle(args[0],"1",args[0])
+		return self.alias.prehandle(args[0],"	1",args[0])
 
 
 	def handle(self):
@@ -109,6 +109,45 @@ class call(instruction):
 	def handle(self):
 		if self.label in labels:
 			self.instruction(0x25,0x00,0x00,(labels[self.label]&0xff0000)>>16,(labels[self.label]&0x00ff00)>>8,labels[self.label]&0x0000ff)
+		else:
+			raise OpcodeError("could not find label {}.".format(self.label))
+
+class int(instruction):
+	def prehandle(self,*args):
+		if len(args) != 1:
+			raise OpcodeError("expected 1 operand, got {}".format(len(args)))		
+
+			try:
+				res = int(args[0],0)
+			except:
+				raise OpcodeError("invalid operand {}. should be register name or int".format(args[0]))
+			
+
+			self.instruction(0x28,0x00,0x00,0x00,(res&0xff00)>>8,res&0x00ff)
+			return 6	
+		
+	def handle(self):
+		pass
+
+class setint(instruction):
+	def prehandle(self,*args):
+		if len(args) != 2:
+			raise OpcodeError("expected 2 operands, got {}".format(len(args)))		
+
+		if reg(args[0]) < 0:
+			raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
+
+
+		if args[1].startswith("[") and args[1].endswith("]"):
+			self.label = args[0][1:-1]
+			self.reg = args[0]
+			return 6				
+		else:
+			raise OpcodeError("not a label: {}.".format(args[1]))		
+		
+	def handle(self):
+		if self.label in labels:
+			self.instruction(0x29,combinetochar(0x0,self.reg),0x00,(labels[self.label]&0xff0000)>>16,(labels[self.label]&0x00ff00)>>8,labels[self.label]&0x0000ff)
 		else:
 			raise OpcodeError("could not find label {}.".format(self.label))
 

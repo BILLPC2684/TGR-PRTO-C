@@ -510,10 +510,15 @@ int main(int argc, char *argv[]) {
     CPU.SP--;  
     break;
    case 0x28:
-    
+    if (CPU.debug == true) { printf("INT 0x%04x",IMM); }
+
+
+
     break;
    case 0x29:
-    
+    if (CPU.debug == true) { printf("SETINT 0x%04x -- > 0x%04x",IMM,CPU.REGs[A]); } 
+
+
     break;
    case 0x2A:
     
