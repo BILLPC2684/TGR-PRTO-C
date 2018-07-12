@@ -11,6 +11,10 @@
 #define BIOSIZ  (0x7FFF)
 #define SW 480
 #define SH 360
+#define INTSIZ (0xFFFF)
 
+#define BIOSCTX 0
+#define ROMCTX 1
+#define RAMCTX 2
 
 #endif

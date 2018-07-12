@@ -51,6 +51,8 @@ int main(int argc, char *argv[]) {
  if (!RAM){printf("MALLOC FAILED\n");exit(1);}
  VRAM = calloc(VRAMSIZ, sizeof(*VRAM));
  if (!VRAM){printf("MALLOC FAILED\n");exit(1);}
+ InterruptVector = calloc(INTSIZ, sizeof(interrupt));
+ if (!InterruptVector){printf("MALLOC FAILED\n");exit(1);}
  //ROM  = calloc(ROMSIZ,  sizeof(*ROM));
  //BIOS = calloc(BIOSIZ,  sizeof(*BIOS));
 
@@ -82,6 +84,7 @@ int main(int argc, char *argv[]) {
  dumpData("BIOS",BIOS,BIOSIZ);
  dumpData("ROM",ROM,ROMSIZ);
  CPU.IS = BIOS.data; CPU.ISz = BIOS.size; CPU.IP = 0; CPU.SP = 0; CPU.BP = 0;
+ currentexeccontext = BIOSCTX; //set context to BIOS
  free(RAM); free(VRAM);
  //MAIN LOOP
  //CPU.running = 0;
@@ -415,6 +418,7 @@ int main(int argc, char *argv[]) {
       printf("Switching to BIOS execute");
       CPU.IS  = BIOS.data;
       CPU.ISz = BIOS.size;
+      currentexeccontext = BIOSCTX;
       break;
      case 0x1: //executes ROM
       if(stopatloadrom){
@@ -425,11 +429,13 @@ int main(int argc, char *argv[]) {
       printf("Switching to ROM execute");
       CPU.IS  = ROM.data;
       CPU.ISz = ROM.size;
+      currentexeccontext = ROMCTX;
       break;
      case 0x2: //executes RAM
       printf("Switching to RAM execute");
       CPU.IS  = RAM;
       CPU.ISz = sizeof(RAM);
+      currentexeccontext = RAMCTX;
       break;
     } if (CPU.debug == true) { printf(" at 0x%x/%x...\n",CPU.IP+6,CPU.ISz); } else { printf("...\n"); }
     break;
@@ -510,13 +516,64 @@ int main(int argc, char *argv[]) {
     CPU.SP--;  
     break;
    case 0x28:
-    
+    if (CPU.debug == true) { printf("INT 0x%04x",IMM); }
+    if (IMM > INTSIZ){
+      printf("ERROR INT NUMBER LARGER THAN INT VECTOR!\n");
+      exit(1);
+    }
+    interrupt i = InterruptVector[IMM];
+    returnval = (interrupt){currentexeccontext,CPU.IP};
+    switch(i.context){
+     case 0x0: //executes BIOS
+      CPU.IS  = BIOS.data;
+      CPU.ISz = BIOS.size;
+      currentexeccontext = BIOSCTX;
+      break;
+     case 0x1: //executes ROM
+      CPU.IS  = ROM.data;
+      CPU.ISz = ROM.size;
+      currentexeccontext = ROMCTX;
+      break;
+     case 0x2: //executes RAM
+      CPU.IS  = RAM;
+      CPU.ISz = sizeof(RAM);
+      currentexeccontext = RAMCTX;
+      break;
+    }
+    CPU.IP = (i.adress % 0x1000000)-6;
+
     break;
    case 0x29:
-    
+    if (CPU.debug == true) { printf("SETINT 0x%04x -- > 0x%04x",IMM,CPU.REGs[A]); } 
+    int addr = IMM;
+    int position = CPU.REGs[A];
+    char context = currentexeccontext;
+    if (position > INTSIZ){
+      printf("ERROR INT NUMBER LARGER THAN INT VECTOR!\n");
+      exit(1);
+    }
+    InterruptVector[position] = (interrupt){context,addr};
     break;
    case 0x2A:
-    
+    if (CPU.debug == true) { printf("INTEND 0x%04x",IMM);}
+    switch(returnval.context){
+     case 0x0: //executes BIOS
+      CPU.IS  = BIOS.data;
+      CPU.ISz = BIOS.size;
+      currentexeccontext = BIOSCTX;
+      break;
+     case 0x1: //executes ROM
+      CPU.IS  = ROM.data;
+      CPU.ISz = ROM.size;
+      currentexeccontext = ROMCTX;
+      break;
+     case 0x2: //executes RAM
+      CPU.IS  = RAM;
+      CPU.ISz = sizeof(RAM);
+      currentexeccontext = RAMCTX;
+      break;
+    }
+    CPU.IP = (returnval.adress % 0x1000000);
     break;
    case 0x2B:
     
