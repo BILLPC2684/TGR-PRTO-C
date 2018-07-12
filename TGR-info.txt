@@ -248,15 +248,15 @@
  |0x1F|COPY    |+|+|-|0x-------|A = B                                                                                       |
  |0x20|EXECUTE |-|-|-|0xXXXXXXX|execute location = IMM[6] and IMM[0-5]                                                      |
  |0x21|RBIOS   |+|+|+|0x-------|C = BIOS.data[A..B]                                                                         |
- |0x22|POP     | | | |0x-------|A = RAM[--SP]                                                                               |
- |0x23|PUSHI   | | | |0x-------|RAM[++SP] = IMM                                                                             |
- |0x24|PUSH    | | | |0x-------|RAM[++SP] = A                                                                               |
- |0x25|CALL    | | | |0x---XXXX|push current IP to stack, jump to IMM                                                       |
- |0x26|RETURN  | | | |0x-------|return to adress on top of the stack                                                        |
- |0x27|SWAPTOP | | | |0x-------|swaps TOS with TOS-1                                                                        |
- |0x28|INT     | | | |0x---xxxx|software interrupt with id=IMM                                                              |
- |0x29|SETINT  | | | |0x---xxxx|sets adress for INT in A                                                                    |
- |0x2A|        | | | |0x-------|                                                                                            |
+ |0x22|POP     |+|-|-|0x-------|A = RAM[--SP]                                                                               |
+ |0x23|PUSHI   |-|-|-|0x-------|RAM[++SP] = IMM                                                                             |
+ |0x24|PUSH    |+|-|-|0x-------|RAM[++SP] = A                                                                               |
+ |0x25|CALL    |-|-|-|0x---XXXX|push current IP to stack, jump to IMM                                                       |
+ |0x26|RETURN  |-|-|-|0x-------|return to adress on top of the stack                                                        |
+ |0x27|SWAPTOP |-|-|-|0x-------|swaps TOS with TOS-1                                                                        |
+ |0x28|INT     |-|-|-|0x---xxxx|software interrupt with id=IMM                                                              |
+ |0x29|SETINT  |+|-|-|0x---xxxx|sets adress for INT in A                                                                    |
+ |0x2A|INTEND  |-|-|-|0x-------|ends interrupt                                                                              |
  |0x2B|        | | | |0x-------|                                                                                            |
  |0x2C|        | | | |0x-------|                                                                                            |
  |0x2D|        | | | |0x-------|                                                                                            |

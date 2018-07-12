@@ -35,4 +35,13 @@ uint8_t *RAM,*VRAM;
 CPU_INIT CPU;
 int frames;
 
+typedef struct{
+	char context;
+	int adress;
+}interrupt;
+
+interrupt * InterruptVector;
+char currentexeccontext;
+interrupt returnval;
+
 #endif

@@ -63,7 +63,7 @@ class add(instruction):
 			try:
 				res = int(args[1],0)
 			except:
-				raise OpcodeError("invalid operand {}. should be register name or int".format(args[2]))
+				raise OpcodeError("add: invalid operand {}. should be register name or int".format(args[2]))
 			self.instruction(0x01,combinetochar(0x00,reg(args[0])),combinetochar(0x0,reg(args[2])),0x00,(res&0xff00)>>8,res&0x00ff)
 			return 6
 		else:
@@ -112,20 +112,20 @@ class call(instruction):
 		else:
 			raise OpcodeError("could not find label {}.".format(self.label))
 
-class int(instruction):
+class Int(instruction):
 	def prehandle(self,*args):
 		if len(args) != 1:
 			raise OpcodeError("expected 1 operand, got {}".format(len(args)))		
 
-			try:
-				res = int(args[0],0)
-			except:
-				raise OpcodeError("invalid operand {}. should be register name or int".format(args[0]))
-			
-
-			self.instruction(0x28,0x00,0x00,0x00,(res&0xff00)>>8,res&0x00ff)
-			return 6	
+		try:
+			res = int(args[0],0)
+		except:
+			raise OpcodeError("int: invalid operand {}. should be int".format(args[0]))
 		
+
+		self.instruction(0x28,0x00,0x00,0x00,(res&0xff00)>>8,res&0x00ff)
+		return 6	
+	
 	def handle(self):
 		pass
 
@@ -139,17 +139,27 @@ class setint(instruction):
 
 
 		if args[1].startswith("[") and args[1].endswith("]"):
-			self.label = args[0][1:-1]
+			self.label = args[1][1:-1]
 			self.reg = args[0]
 			return 6				
 		else:
 			raise OpcodeError("not a label: {}.".format(args[1]))		
-		
+
 	def handle(self):
 		if self.label in labels:
-			self.instruction(0x29,combinetochar(0x0,self.reg),0x00,(labels[self.label]&0xff0000)>>16,(labels[self.label]&0x00ff00)>>8,labels[self.label]&0x0000ff)
+			self.instruction(0x29,combinetochar(0x0,reg(self.reg)),0x00,(labels[self.label]&0xff0000)>>16,(labels[self.label]&0x00ff00)>>8,labels[self.label]&0x0000ff)
 		else:
 			raise OpcodeError("could not find label {}.".format(self.label))
+
+class intend(instruction):
+	def prehandle(self,*args):
+		if len(args) != 0:
+			raise OpcodeError("expected 0 operands, got {}".format(len(args)))		
+		self.instruction(0x2a)				
+		return 6
+
+	def handle(self):
+		pass	
 
 class ret(instruction):
 	def prehandle(self,*args):
@@ -176,7 +186,7 @@ class sub(instruction):
 			try:
 				res = int(args[1],0)
 			except:
-				raise OpcodeError("invalid operand {}. should be register name or int".format(i))
+				raise OpcodeError("sub: invalid operand {}. should be register name or int".format(i))
 			self.instruction(0x02,combinetochar(0x00,reg(args[0])),combinetochar(0x00,reg(args[2])),0x00,(res&0xff00)>>8,res&0x00ff)
 			return 6
 		else:
@@ -199,7 +209,7 @@ class rrom(instruction):
 			try:
 				res = int(args[1],0)
 			except:
-				raise OpcodeError("invalid operand {}. should be register name or int".format(args[1]))
+				raise OpcodeError("rrom: invalid operand {}. should be register name or int".format(args[1]))
 			self.instruction(0x18,combinetochar(0x00,reg(args[0])),0x00,0x00,(res&0xff00)>>8,res&0x00ff)
 			return 6
 		if reg(args[2]) < 0:
@@ -221,7 +231,7 @@ class push(instruction):
 			try:
 				res = int(args[0],0)
 			except:
-				raise OpcodeError("invalid operand {}. should be register name or int".format(args[0]))
+				raise OpcodeError("push: invalid operand {}. should be register name or int".format(args[0]))
 			self.instruction(0x23,0x00,0x00,0x00,(res&0xff00)>>8,res&0x00ff)
 			return 6
 		else:
@@ -357,7 +367,7 @@ class mov(instruction):
 				try:
 					res = int(args[1],0)
 				except:
-					raise OpcodeError("invalid operand {}. should be register name or int".format(args[1]))
+					raise OpcodeError("mov: invalid operand {}. should be register name or int".format(repr(args[1])))
 			
 			if res > 0xffff:
 				raise OpcodeError("invalid operand {}. int should be less than 65536".format(args[1]))
@@ -557,7 +567,7 @@ def main(fnamein,fnameout):
 				labels[m.group("label")] = adress
 			if m.group("opcode"):
 				for j in get_all_subclasses(instruction):
-					if j.__name__ == m.group("opcode"):
+					if j.__name__.lower() == m.group("opcode").lower():
 						instr = j()
 						instructions.append(instr)
 						if m.group("arg"):
