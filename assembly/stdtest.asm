@@ -7,7 +7,7 @@ functiontest_program_start:
 
 
 
-CALLFN(square,5)
+CALLFN(mod,11,6)
 mov a,h
 disp a
 
