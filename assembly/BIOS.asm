@@ -153,6 +153,44 @@ loop2:
 
 ;find TGR at the start of a rom
 loop2done:
+	
+	mov a,0
+	setint a,[interrupt0]
+	mov a,1
+	setint a,[interrupt1]
+	mov a,2
+	setint a,[interrupt2]
+	mov a,3
+	setint a,[interrupt3]
+
+	jmp [checksum]
+
+
+;interrupt handlers
+
+;malloc routines:
+;
+;
+;
+interrupt0:
+	
+
+
+	intend
+
+interrupt1:
+	intend
+
+interrupt2:
+	intend
+
+interrupt3:
+	mov a,10
+	disp a
+	intend
+
+
+checksum:
 	rrom a,0x000001
 	mov b,0x54
 	cmpeq a,b

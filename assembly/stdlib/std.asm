@@ -1,5 +1,5 @@
 
-%include assembly/callfn.asm
+%include assembly/stdlib/callfn.asm
 
 saveregs:
 	pop h

@@ -416,6 +416,45 @@ class dsend(instruction):
 	def handle(self):
 		pass
 
+class rram(instruction):
+	def prehandle(self,*args):
+		if len(args) != 1:
+			raise OpcodeError("rram: expected 1 operand, got {}".format(len(args)))		
+
+		if reg(args[0]) < 0:
+			raise OpcodeError("invalid operand {}. should be register name".format(args[0]))		
+
+
+		
+		self.instruction(0x0d,combinetochar(reg(args[1]),reg(args[0])))
+		return 6
+
+
+	def handle(self):
+		pass
+
+class wram(instruction):
+	def prehandle(self,*args):
+		if len(args) != 3:
+			raise OpcodeError("wram: expected 3 operands, got {}".format(len(args)))		
+
+		if reg(args[0]) < 0:
+			raise OpcodeError("invalid operand {}. should be register name".format(args[0]))		
+		if reg(args[1]) < 0:
+			raise OpcodeError("invalid operand {}. should be register name".format(args[1]))		
+		if reg(args[1]) < 0:
+			raise OpcodeError("invalid operand {}. should be register name".format(args[2]))		
+
+	
+	
+		
+		self.instruction(0x0d,combinetochar(reg(args[1]),reg(args[0])))
+		return 6
+
+
+	def handle(self):
+		pass
+
 class cmpeq(instruction):
 	def prehandle(self,*args):
 		if len(args) != 2:
