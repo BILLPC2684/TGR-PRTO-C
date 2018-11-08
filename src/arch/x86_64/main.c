@@ -157,10 +157,10 @@ if (ShowFPS == true) {
    if (keystates[SDL_SCANCODE_LCTRL] && keystates[SDL_SCANCODE_D]) {
     if (CPU.debug == true) {
      CPU.debug = false;
-     printf("EMU: [CPU.debug: False]\n");
+     printf("[EMU] CPU.debug: False\n");
     } else {
      CPU.debug = true;
-     printf("EMU: [CPU.debug: True]\n");
+     printf("[EMU] CPU.debug: True\n");
     } SDL_Delay(100);
    }
    if (keystates[SDL_SCANCODE_LCTRL] && keystates[SDL_SCANCODE_I]) {
@@ -180,12 +180,12 @@ if (ShowFPS == true) {
    if (keystates[SDL_SCANCODE_LCTRL] && keystates[SDL_SCANCODE_C]) {
     if (ShowInput == true) {
      ShowInput = false;
-     printf("EMU: [Show Controller Input: False]\n");
+     printf("[EMU] Show Controller Input: False\n");
      getChar("````````````````````````````````````````````````````",        2*8, SH-(3*8),   0,   0,   0, false, false);
      getChar("````````````````````````````````````````````````````",        2*8, SH-(2*8),   0,   0,   0, false,  true);
     } else {
      ShowInput = true;
-     printf("EMU: [Show Controller Input: True]\n");
+     printf("[EMU] Show Controller Input: True\n");
     } SDL_Delay(100);
    }
    if (keystates[SDL_SCANCODE_LCTRL] && keystates[SDL_SCANCODE_R]) {
@@ -265,6 +265,8 @@ if (ShowFPS == true) {
    }
    if (FPS > 0) { SDL_Delay(FPS/12000000); }
    getChar("``````````````````````````````````````````````````````````",  2*8, SH-(4*8),   0,   0,   0, false, false);
+   getChar("``````````````````````````````````````````````````````````",  1*8, SH-(6*8),   0,   0,   0, false, false);
+   getChar("``````````````````````````````````````````````````````````",  1*8, SH-(5*8),   0,   0,   0, false, false);
    if (HUDinfo == false) {
     char TFPS[255]; snprintf(TFPS,128,"FPS: %d",FPS);
     getChar(TFPS,          2*8, SH-(4*8), 255, 128, 128,  true,  true);
@@ -273,7 +275,6 @@ if (ShowFPS == true) {
     getChar(TFPS,          2*8, SH-(4*8), 255, 128, 128,  true,  true);
        
     //                " RAM Usage: 134217727 bytes/134217727 (100.00% full) | VRAM Usage: 67108863 bytes/67108863 (100.00% full)"
-    getChar("``````````````````````````````````````````````````````````",  1*8, SH-(5*8),   0,   0,   0, false, false);
     snprintf(TFPS,128," RAM Usage: %.0lf bytes/%d (%.2lf%% full)", RAMUsage*100,0x7FFFFFF,( RAMUsage/0x7FFFFFF)*100);
     getChar(TFPS,                1*8, SH-(6*8), 255, 128, 128,  true,  true);
     snprintf(TFPS,128,"VRAM Usage: %.0lf bytes/%d (%.2lf%% full)",VRAMUsage*100,0x3FFFFFF,(VRAMUsage/0x3FFFFFF)*100);
