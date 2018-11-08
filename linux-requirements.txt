@@ -1,0 +1,5 @@
+Requirements Packages for your Linux System:
+ Debian Based Packages: nasm gcc valgrind gdb libsdl2-dev libsdl2-2.0-0 make python3
+ 
+Copy and Paste the correct Linux System for your package manager...
+Example: APT works best for Debian Based Packages

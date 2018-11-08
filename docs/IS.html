@@ -1,0 +1,868 @@
+
+<html>
+<head>
+<title>Instruction Set - TGR</title>
+
+<link rel="shortcut icon" type="image/png" href="favicon-114.png"/>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+<style type="text/css">
+  body{
+    background: #474e5d;
+  }
+  p{
+    margin:10px;
+    color:white;
+  }
+</style>
+
+</head>
+<body>
+
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+    <a class="navbar-brand" href="">The Game Razer</a>
+    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+      <li class="nav-item active">
+        <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="IS.html">Instruction set</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="install.html">Installation</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="assembly.html">Assembly</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="systemSpecs.html">System Specs</a>
+      </li>
+    </ul>
+    <image src=""></image>
+
+  </div>
+</nav>
+
+<p class="lead">
+every <i class="fas fa-check-circle"></i>check mark is equivelant to a 4-bit value<br>
+every <i class="fas fa-times-circle"></i>cross mark is equivelant to 0
+</p>
+
+<table class="table table-hover table-striped table-dark">
+  <thead>
+    <tr>
+      <th scope="col col-md-2"">Instruction</th>
+      <th scope="col">Name</th>
+      <th scope="col">A</th>
+      <th scope="col">B</th>
+      <th scope="col">C</th>
+      <th scope="col">Immediate</th>      
+      <th scope="col">Description</th>      
+    </tr>
+  </thead>
+  <tbody>
+    <!-- <i class="fas fa-times-circle"> X/NO  -->
+    <!-- <i class="fas fa-check-circle"> O/YES -->
+    <tr>
+      <th scope="row">0x00</th>
+      <td>LOAD</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>Loads REG[A] with IMM</td>
+    </tr>
+    <tr>
+      <th scope="row">0x01</th>
+      <td>ADD</td> 
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>REG[C] = REG[A] + REG[B] (if IMM == 0 then replace REG[B] with IMM)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x02</th>
+      <td>SUB</td> 
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>REG[C] = REG[A] - REG[B] (if IMM == 0 then replace REG[B] with IMM)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x03</th>
+      <td>MUL</td> 
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>REG[C] = REG[A] * REG[B] (if IMM == 0 then replace REG[B] with IMM)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x04</th>
+      <td>DIV</td> 
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>REG[C] = REG[A] / REG[B] (if IMM == 0 then replace REG[B] with IMM)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x05</th>
+      <td>AND</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>REG[C] = REG[A] & REG[B] (if IMM == 0 then replace REG[B] with IMM)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x06</th>
+      <td>OR</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>REG[C] = REG[A] | REG[B] (if IMM == 0 then replace REG[B] with IMM)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x07</th>
+      <td>XOR</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>REG[C] = REG[A] ^ REG[B] (if IMM == 0 then replace REG[B] with IMM)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x08</th>
+      <td>NOT</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>REG[A] = !REG[A]</td>
+    </tr>
+    <tr>
+      <th scope="row">0x09</th>
+      <td>SPLIT</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>VALUE</td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>REG[B],REG[C] = REG[A] splitted (if IMM == 0: 8-bit split else 4-bit split)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x0A</th>
+      <td>COMBINE</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>VALUE</td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>REG[C] = REG[A] combined with REG[B] (if IMM == 0: 8-bit split else 4-bit split)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x0B</th>
+      <td>JMP</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>InstrucionPointer = REG[A] combined with REG[B] (cuts eny value over 24-bit)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x0C</th>
+      <td>JMPI</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>InstrucionPointer = IMM</td>
+    </tr>
+    <tr>
+      <th scope="row">0x0D</th>
+      <td>CMP=</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>VALUE</td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>if REG[A] == REG[B]: InstrucionPointer+=1(expected JMP) else InstrucionPointer+=2 (if C == 1 replace REG[B] with IMM)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x0E</th>
+      <td>CMP<</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>VALUE</td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>if REG[A] < REG[B]: InstrucionPointer+=1(expected JMP) else InstrucionPointer+=2 (if C == 1 replace REG[B] with IMM)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x0F</th>
+      <td>CMP></td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>VALUE</td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>if REG[A] > REG[B]: InstrucionPointer+=1(expected JMP) else InstrucionPointer+=2 (if C == 1 replace REG[B] with IMM)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x10</th>
+      <td>RAMPOS</td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>RAMPointer = REG[A] combined with REG[B]</td>
+    </tr>
+    <tr>
+      <th scope="row">0x11</th>
+      <td>RRAM</td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>if B == 1 then index VRAM then RAM with RAMPointer | if C == 1 then IMM will replace RAMPointer</td>
+    </tr>
+    <tr>
+      <th scope="row">0x12</th>
+      <td>WRAM</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>VALUE</td>
+      <td><i class="fas fa-check-circle"></i>VALUE</td>
+      <td>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>if B == 1 then index VRAM then RAM with RAMPointer | if C == 1 then IMM will replace RAMPointer</td>
+    </tr>
+    <tr>
+      <th scope="row">0x13</th>
+      <td>RSAV</td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>REG[C] = SAV.data[REG[A]..REG[B]]</td>
+    </tr>
+    <tr>
+      <th scope="row">0x14</th>
+      <td>IRSAV</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>REG[A] = SAV.data[IMM]</td>
+    </tr>
+    <tr>
+      <th scope="row">0x15</th>
+      <td>WSAV</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>SAV.data[REG[A]..REG[B]] = REG[C] unless if IMM == 1 then push SAV to file(saving SAV data)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x16</th>
+      <td>IWSAV</td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>SAV.data[IMM] = REG[A]</td>
+    </tr>
+    <tr>
+      <th scope="row">0x17</th>
+      <td>RROM</td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>REG[C] = ROM.data[REG[A]..REG[B]]</td>
+    </tr>
+    <tr>
+      <th scope="row">0x18</th>
+      <td>IRROM</td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>REG[A] = ROM.data[IMM]</td>
+    </tr>
+    <tr>
+      <th scope="row">0x19</th>
+      <td>HALT</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>Halts index IMM located in <a href="systemSpecs.html">[[System Specs]]</a></td>
+    </tr>
+    <tr>
+      <th scope="row">0x1A</th>
+      <td>PRINT</td>
+      <td><i class="fas fa-check-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>Prints REG[A] in emulator terminal(for debugging ROMs only)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x1B</th>
+      <td>FLAGS</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>REG[A] = Flags[IMM]</td>
+    </tr>
+    <tr>
+      <th scope="row">0x1C</th>
+      <td>DVCSEND</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>Send message to device IMM[3], IMM[1-2] are for device Instruction and is sent with REG[A]</td>
+    </tr>
+    <tr>
+      <th scope="row">0x1D</th>
+      <td>DVCRECV</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>Send message to device IMM[3], IMM[1-2] are for device Instruction and is sent with REG[A]</td>
+    </tr>
+    <tr>
+      <th scope="row">0x1E</th>
+      <td>ICOUT</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>REG[A],REG[B] = InstrucionPointer(32-bit for 24-bit)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x1F</th>
+      <td>COPY</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>REG[A] = REG[B]</td>
+    </tr>
+    <tr>
+      <th scope="row">0x20</th>
+      <td>EXECUTE</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>ExecuteLocation = IMM[6] and InstrucionPointer = IMM[0-5] (EL info located in <a href="systemSpecs.html">[[System Specs]]</a>)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x21</th>
+      <td>RBIOS</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>REG[C] = BIOS.data[REG[A]..REG[B]]</td>
+    </tr>
+    <tr>
+      <th scope="row">0x22</th>
+      <td>IRBIOS</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>REG[A] = BIOS.data[IMM]</td>
+    </tr>
+    <tr>
+      <th scope="row">0x23</th>
+      <td>POP</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>POPs from the stack to REG[A] (REG[A] = Stack[StackPointer..-1] and StackPointer-=2)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x24</th>
+      <td>PUSH</td>
+      <td><i class="fas fa-times-circle"></i>REG</td>
+      <td><i class="fas fa-times-circle"></i>VALUE</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>PUSHs REG[A] into the stack (Stack[StackPointer..+1] = REG[A] and StackPointer+=2) (if B == 1 replace REG[A] with IMM)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x25</th>
+      <td>CALL</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>Calling a function at IMM (InstructionPointer gets pushed into the stack)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x26</th>
+      <td>RET</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>Returning from a function (InstructionPointer goes back from poping stack)</td>
+    </tr>
+    <tr>
+      <th scope="row">0x27</th>
+      <td>SWAPTOP</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>Swaps the top of stack...</td>
+    </tr>
+    <tr>
+      <th scope="row">0x28</th>
+      <td>GetClock</td>
+      <td><i class="fas fa-check-circle"></i>REG</td>
+      <td><i class="fas fa-check-circle"></i>Value</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>if B == 0 then REG[A] = CPU.Clock else reset CPU.Clock</td>
+    </tr>
+    <tr>
+      <th scope="row">0x29</th>
+      <td>Delay</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+          <i class="fas fa-check-circle"></i>
+      </td><td>(DebugMode Only) if IMM > 0 then it'll wait IMM ms. else pause for input</td>
+    </tr>
+    <tr>
+      <th scope="row">0x2A</th>
+      <td>Name</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>Disc</td>
+    </tr>
+    <tr>
+      <th scope="row">0x2B</th>
+      <td>Name</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>Disc</td>
+    </tr>
+    <tr>
+      <th scope="row">0x2C</th>
+      <td>Name</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>Disc</td>
+    </tr>
+    <tr>
+      <th scope="row">0x2D</th>
+      <td>Name</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>Disc</td>
+    </tr>
+    <tr>
+      <th scope="row">0x2E</th>
+      <td>Name</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>Disc</td>
+    </tr>
+    <tr>
+      <th scope="row">0x2F</th>
+      <td>Name</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>Disc</td>
+    </tr>
+    <tr>
+      <th scope="row">0xFF</th>
+      <td>NOP</td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td><i class="fas fa-times-circle"></i></td>
+      <td>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+          <i class="fas fa-times-circle"></i>
+      </td><td>Does Nothing</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>
+
+
+

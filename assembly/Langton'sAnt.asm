@@ -1,0 +1,127 @@
+;Program: Langton`s Ant
+;ROM made by: BILLPC2684
+%TITLE ;ROMNAME: LANGSANT
+;raw 0x01,0x54,0x47,0x52,0x4C,0x41 ;.TGRLA
+;raw 0x4E,0x47,0x53,0x41,0x4E,0x54 ;NGSANT
+
+drecv d,0x0,0x00 ;width
+drecv h,0x0,0x01 ;height
+
+mov f,0x0F
+dsend f,0x0,0x02
+dsend f,0x0,0x03
+dsend f,0x0,0x04
+mov f,0x01
+dsend f,0x0,0x05
+
+ploop0:
+ cmpgt c,h
+  jmp [script]
+ploop1:
+ cmpgt b,d
+  jmp [preset_x]
+ dsend b,0x0,0x00  ;set xpos
+ dsend c,0x0,0x01  ;set ypos
+ dsend f,0x0,0x06
+ add b,1,b
+ jmp [ploop1]
+
+preset_x:
+ dsend g,0x0,0x07  ;updating screen
+ mov b,0
+ add c,1,c
+ jmp [ploop0]
+
+script:
+dsend e,0x0,0x07 ;render
+;--[[COLORPALLET]]--
+;--1
+mov h,0
+dsend h,0x0,0x02
+mov h,0
+dsend h,0x0,0x03
+mov h,0
+dsend h,0x0,0x04
+mov h,0x01
+dsend h,0x0,0x05
+
+;--2
+mov h,255
+dsend h,0x0,0x02
+mov h,255
+dsend h,0x0,0x03
+mov h,255
+dsend h,0x0,0x04
+mov h,0x02
+dsend h,0x0,0x05
+
+;--3
+mov h,255
+dsend h,0x0,0x02
+mov h,0
+dsend h,0x0,0x03
+mov h,0
+dsend h,0x0,0x04
+mov h,0x03
+dsend h,0x0,0x05
+
+
+
+drecv a,0x0,0x00 ;width
+drecv b,0x0,0x01 ;height
+div a,2,a
+div b,2,b
+mov c,3
+
+; A: X
+; B: Y
+; C: DIR [0^|1>|2v|3<]
+; D: Current Color
+; E: TMP/Ant Color
+
+loop0:
+ dsend a,0x0,0x00 ;setX
+ dsend b,0x0,0x01 ;setY
+ drecv d,0x0,0x03 ;getR
+ mov e,3
+ dsend e,0x0,0x06 ;plot
+ dsend e,0x0,0x07 ;render
+ mov e,255
+ cmpeq d,e
+  jmp [isoff]
+ jmp [ison]
+ 
+ isret:
+  mov e,0x0
+  cmpeq c,e
+   dec b;-y
+  mov e,0x1
+  cmpeq c,e
+   inc a;+x
+  mov e,0x2
+  cmpeq c,e
+   inc b;+y
+  mov e,0x3
+  cmpeq c,e
+   dec a;-x
+ jmp [loop0]
+
+ison:
+ mov e,2
+ dsend e,0x0,0x06 ;plot
+ dsend e,0x0,0x07 ;render
+ mov e,0x3
+ cmpeq c,e
+  mov c,0xFFFF
+ inc c
+ jmp [isret]
+
+isoff:
+ mov e,1
+ dsend e,0x0,0x06 ;plot
+ dsend e,0x0,0x07 ;render
+ mov e,0x0
+ cmpeq c,e
+  mov c,4
+ dec c
+ jmp [isret]

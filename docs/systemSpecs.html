@@ -1,0 +1,163 @@
+<html>
+ <head>
+  <title>SystemSpecs - TGR</title>
+  
+  <link rel="shortcut icon" type="image/png" href="favicon-114.png"/>
+  
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+  
+  <style type="text/css">
+   body{
+    background: #474e5d;
+    color:#7FFF7F;
+   }
+   pre{
+    margin:10px;
+    color:#7FFF7F;
+   }
+  </style>
+ </head>
+ <body>
+  <pre>
+ .________________.______._________________.______________.__________.______________.
+ | The Game Razer | <a href="./index.html">Home</a> | <a href="./IS.html">Instruction Set</a> | <a href="./install.html">Installation</a> | <a href="./assembly.html">Assembly</a> | <a href="">System Specs</a> |
+ |________________|______|_________________|______________|__________|______________|
+ .__________.
+ |MEMORY_MAP|______________________________.________________.
+ |ROM |SAV|RAM                             |VRAM            |
+ |####|## |################################|################|
+ |####|## |################################|################|
+ |####|## |################################|################|
+ |####|## |################################|################|
+ |____|___|________________________________|________________|
+ |16MB|8MB|128MB                           |64MB            |
+ |____|___|________________________________|________________|
+ |Length:          | # = 1 MB |
+ |\ROM:    0xFFFFFF| - = 1 KB |
+ |\SAV:    0x7FFFFF|__________|
+ |\RAM:   0x7FFFFFF|
+ |\RAM:   0x7FFFFFF|
+ |\VRAM:  0x3FFFFFF|
+ |\TOTAL: 0xD800000|
+ |_________________|
+
+ ._________.
+ |DVC_PORTS|_________________________________________.
+ |______.                                            |
+ |Notes:|____________________________________________|
+ | + REG required                                    |
+ | - REG not required                                |
+ | / REG value for operation(mostly bool only[1/0])  |
+ |___________________________________________________|
+ |0x0: GPU|_____________________.____._______________|
+ | |SEND__|____________._____.  |RECV|_______._____. |
+ | |OPCODE|____info____|_REG_|--|____info____|_REG_| |
+ | | 0x00 |   SET X    |  +  |--|  GET PIXEL |  +  | |
+ | | 0x01 |   SET Y    |  +  |--|  GET W     |  +  | |
+ | | 0x02 |   SET R    |  +  |--|  GET H     |  +  | |
+ | | 0x03 |   SET G    |  +  |--|--DISABLED--|-N/A-| |
+ | | 0x04 |   SET B    |  +  |--|--DISABLED--|-N/A-| |
+ | | 0x05 | SET ColPal |  +  |--|--DISABLED--|-N/A-| |
+ | | 0x06 |   PLOT     |  +  |--|--DISABLED--|-N/A-| |
+ | | 0x07 |   UPDATE   |  -  |--|--DISABLED--|-N/A-| |
+ |_|______|____________|_____|__|____________|_____|_|
+ |0x1: input|___________________.____._______________|
+ | |SEND__._|__________._____.  |RECV|_______._____. |
+ | |OPCODE|____info____|_REG_|--|____info____|_REG_| |
+ | | 0x00 |SELECT CONTR|  +  |--|RECV CONTR.0|-N/A-| |
+ | | 0x01 |--DISABLED--|-N/A-|--|RECV CONTR.1|-N/A-| |
+ |_|______|____________|_____|__|____________|_____|_|
+ |0x2: sound|___________________.____._______________|
+ | |SEND__._|__________._____.  |RECV|_______._____. |
+ | |OPCODE|____info____|_REG_|--|____info____|_REG_| |
+ | | 0x00 |--DISABLED--|-----|--|--DISABLED--|-N/A-| |
+ |_|______|____________|_____|__|____________|_____|_|
+ |0x3: network|_________________.____._______________|
+ | |SEND__.___|________._____.  |RECV|_______._____. |
+ | |OPCODE|____info____|_REG_|--|____info____|_REG_| |
+ | | 0x00 |  SET IP[0] |  +  |--| GET STATUS |  +  | |
+ | | 0x01 |  SET IP[1] |  +  |--|   RECV.    |  +  | |
+ | | 0x02 |  SET PORT  |  +  |--|--DISABLED--|-N/A-| |
+ | | 0x03 |   CONNECT  |  +  |--|--DISABLED--|-N/A-| |
+ | | 0x04 |    BIND    |  +  |--|--DISABLED--|-N/A-| |
+ | | 0x05 | DISCONNECT |  +  |--|--DISABLED--|-N/A-| |
+ | | 0x06 |    SEND    |  +  |--|--DISABLED--|-N/A-| |
+ | | 0x07 |SET C.LIMMIT|  +  |--|--DISABLED--|-N/A-| |
+ | | 0x08 |SET RECV.LEN|  +  |--|--DISABLED--|-N/A-| |
+ |_|______|____________|_____|__|____________|_____|_|
+ |0x4-0xF: unknown                                   |
+ |___________________________________________________|
+ .________.
+ |CPU_REGS|
+ |0|A|____|
+ |1|B|
+ |2|C|
+ |3|D|
+ |4|E|
+ |5|F|
+ |6|G|
+ |7|H|
+ |_|_|
+ ._________.
+ |CMP_info_|
+ |0|==     |
+ |1|<      |
+ |2|>      |
+ |3|!=(NOT)|
+ |_|_______|
+ .__________.
+ |[HALT_INFO|____________________________________________.
+ |0| nothing                                 |N/A        |
+ |1| stop running everything                 |CPU        |
+ |2| stops BIOS from running and starts      |BIOS       |
+ |3| resets the Audio                        |AUDIO      |
+ |4| resets the Input                        |INPUT      |
+ |5| resets Network System                   |NETWORK    |
+ |6| stops everything and prints PC          |CPU        |
+ |7| nothing                                 |N/A        |
+ |8| nothing                                 |N/A        |
+ |9| nothing                                 |N/A        |
+ |A| nothing                                 |N/A        |
+ |B| nothing                                 |N/A        |
+ |C| nothing                                 |N/A        |
+ |D| nothing                                 |N/A        |
+ |E| nothing                                 |N/A        |
+ |F| resets everything(restarts the emu)     |EMU        |
+ |_|_________________________________________|___________|
+ .________________.
+ |INSTRUCTION-INFO|________________.
+ |NOTE: very char is shown is 4-bit|
+ |Length: 6 bytes                  |
+ |start byte:v v v v v v           |
+ |Data:    0xOOABC---IIII          |
+ |Address: 0xOOABCIIIIIII          |
+ |INSTruction   = 1   bytes(O)     |
+ |REG A/B/C    = 1.5 bytes(ABC)    |
+ |IMM[ADDRESS] = 3.5 bytes(I)      |
+ |IMM[DATA]    = 2   bytes(I)      |
+ |_____.                           |
+ |BYTES|___________________________|__________________.
+ |5: [A,B] = [INST,INST] A-B\_____[8-bit Instruction] |
+ |4: [8,9] = [REGA,REGB] 9\_______[3 3-bit REGS A-B-C]|
+ |3: [6,7] = [IMM ,REGC] 7/ 6\____[28-bit ADDRESS IMM]|
+ |2: [4,5] = [ IMM  2x ]     /                        |
+ |1: [2,3] = [ IMM  2x ]     | 3\_[16-bit IMM]        |
+ |0: [0,1] = [ IMM  2x ]    0/ 0/                     |
+ |____________________________________________________|
+ ._________.
+ |FLAG_INFO|__.
+ |0: overflow |
+ |1: underflow|
+ |2: halt     |
+ |____________|
+  </pre><br><br>
+</nav>
+
+</body>
+</html>
+
+
+

@@ -1,7 +1,7 @@
 OS := $(shell uname)
 version = 0.0.1
 arch ?= x86_64
-executable := build/$(arch)
+executable := build/TGR-$(arch)
 
 dirs = $(shell find src/arch/$(arch)/ -type d -print)
 includedirs :=  $(sort $(foreach dir, $(foreach dir1, $(dirs), $(shell dirname $(dir1))), $(wildcard $(dir)/include)))
@@ -9,8 +9,8 @@ testfile =
 
 linker = gcc
 
-CFLAGS = -Wall -cpp -O3 -g $(shell sdl2-config --cflags) --std=c99
-CPPFLAGS = -Wall -c --std=c++11
+CFLAGS = -Wall -cpp -O3 -g3 $(shell sdl2-config --cflags) --std=c99 #-pthread
+CPPFLAGS = -Wall -c --std=c++11 #-pthread
 CFLAGS += $(foreach dir, $(includedirs), -I./$(dir))
 CPPFLAGS += $(foreach dir, $(includedirs), -I./$(dir))
 LDFLAGS = $(shell sdl2-config --libs) -lm
@@ -30,12 +30,6 @@ cpp_object_files := $(patsubst src/arch/$(arch)/%.cpp, \
 .PHONY: all clean run
 
 all: $(executable)
-
-install:
-	sudo apt-get install nasm gcc valgrind gdb -y
-	sudo apt install libsdl2-dev libsdl2-2.0-0 -y
-
-
 
 debug: $(executable)
 	gdb --args $(executable) $(testfile)
@@ -58,7 +52,7 @@ go:
 
 $(executable): $(assembly_object_files) $(c_object_files) $(cpp_object_files)
 	@echo linking...
-	@$(linker) -o $(executable) $(assembly_object_files) $(c_object_files) $(cpp_object_files) $(LDFLAGS)
+	@$(linker) -o $(executable) $(assembly_object_files) $(c_object_files) $(cpp_object_files) $(LDFLAGS) -pthread
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm

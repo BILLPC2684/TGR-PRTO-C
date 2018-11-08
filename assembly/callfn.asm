@@ -53,3 +53,27 @@
     call [name]__NEWLINE__\
     call [restoreregs]__NEWLINE__
 
+saveregs:
+	pop h
+	push a
+	push b
+	push c
+	push d
+	push e
+	push f
+	push g
+	push h
+	ret
+
+restoreregs:
+	pop a
+	pop g
+	pop f
+	pop e
+	pop d
+	pop c
+	pop b
+	push a
+	swap
+	pop a
+	ret
