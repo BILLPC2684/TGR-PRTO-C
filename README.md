@@ -36,7 +36,7 @@ Required Packages are located in: `linux-requirements.txt`\
 # Building the Emulator
 ## Linux
 open a terminal in the current folder and run: `make` (this compiles the emulator for you to run)\
-to run the emulator, run: `./build/TGR-$(arch) <ROM> <ARGS>`\n
+to run the emulator, run: `./build/TGR-$(arch) <ROM> <ARGS>`\
 (replace `<ROM>` with the filepath to your ROM | for <ARGS> look down)
 ## Windows
 *undefined* (download `.exe` build from github `releases`, *if they exists*)
