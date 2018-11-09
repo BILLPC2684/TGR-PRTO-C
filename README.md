@@ -1,3 +1,5 @@
+![alt text](https://github.com/BILLPC2684/TGR-PRTO-C/raw/master/bin/TGR-logo(8x).png)
+
 # TGR-PRTO-C
 TheGameRazer is a custom retro 16-bit style emulator made in C,\
 this is still in prototype stages...
@@ -63,7 +65,7 @@ ARGs are not needed to run a ROM but can be useful for debuging...\
 check out out the WorkingInProgress offical github page: https://billpc2684.github.io/TGR-PRTO-C/ \
 (this should have everything you need)
 
-# Want to join are discord server? it's free
+# Want to join our  discord server? it's free
 ##Invite link: https://discord.gg/PWAf8ek
 <br>
 <br>
@@ -124,7 +126,8 @@ a typical function call routine:
 ```assembly
 CALLFN(square,5)
 mov a,h ;move out of h just to be sure, h is often used for return values so you never know what will overwrite it
-disp a
+
+p a
 hlt
 
 mult:
