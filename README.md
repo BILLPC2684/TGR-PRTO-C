@@ -10,13 +10,13 @@ BILLPC2684's offical: http://billcraft.byethost33.com/TheGameRazer/
 
 # Is the current build runnable? (will update)
 ## For Build: v0.0.34 Alpha
- - Runnable Build: `Yes`\
- - Stable CPU EMU: `Yes`     (not completed)\
- - Stable Memory:  `Yes`     (128 MB of RAM | 64 MB of VRAM)\
- - Has Video:      `Yes`     (SDL | uses OpenGL)\
- - Has Audio:      `No`      (Requesting help)\
- - Has Inputs:     `Yes`     (SDL Window Input)\
- - Has Network:    `No`      (Requesting help)\
+ - Runnable Build: `Yes`
+ - Stable CPU EMU: `Yes`     (not completed)
+ - Stable Memory:  `Yes`     (128 MB of RAM | 64 MB of VRAM)
+ - Has Video:      `Yes`     (SDL | uses OpenGL)
+ - Has Audio:      `No`      (Requesting help)
+ - Has Inputs:     `Yes`     (SDL Window Input)
+ - Has Network:    `No`      (Requesting help)
  - Saveable data:  `Yes`     (fully functional)
 ## NOTE: if the emulator crashes or glitch out, check your ROM before reporting(if someone else made the ROM then contact them)
 
@@ -46,20 +46,20 @@ to run the emulator, run: `./build/TGR-$(arch) <ROM> <ARGS>`\
 *undefined*
 
 # Emulator Arguments
-ARGs are not needed to run a ROM but can be useful for debuging...\
- - `-d`         or `--debug`:       enabled `debug mode` for telling you whats going on\
- - `-i`         or `--showInfo`:    prints the current `FramesPerSec`/`InstructionsPerSec` in the terminal every second.\
- - `-pl`        or `--pauseLoad`:   waits for user to press enter after running the BIOS\
- - `-s <ms>`    or `--slow <ms>`:   replace <ms> with the delay you want to have per instruction\
- - `-wi`        or `--waitInput`:   requires `debug mode` to work, after every instruction it waits for you to continue\
- - `-sk <inst>` or `--skip <inst>`: replace <inst> with the amount of instructions you want to skip\
- - `-i`         or `--showInfo`:    shows basic info\
- - `-nu`        or `--noUnicode`:   prints DataDump in ascii instead of unicode\
- - `-np`        or `--noPrint`:     disables print instruction to terminal\
- - `-di`        or `--devInfo`:     shows bref dev info...\
- - `-fr`        or `--forceRender`: forces every frame to render\
- - `-db`        or `--debugBIOS`:   does the same as `--waitInput` but for the BIOS\
- - `-sb`        or `--skipBIOS`:    skips the BIOS from running(saves ROM debuging time)\
+ARGs are not needed to run a ROM but can be useful for debuging...
+ - `-d`         or `--debug`:       enabled `debug mode` for telling you whats going on
+ - `-i`         or `--showInfo`:    prints the current `FramesPerSec`/`InstructionsPerSec` in the terminal every second.
+ - `-pl`        or `--pauseLoad`:   waits for user to press enter after running the BIOS
+ - `-s <ms>`    or `--slow <ms>`:   replace <ms> with the delay you want to have per instruction
+ - `-wi`        or `--waitInput`:   requires `debug mode` to work, after every instruction it waits for you to continue
+ - `-sk <inst>` or `--skip <inst>`: replace <inst> with the amount of instructions you want to skip
+ - `-i`         or `--showInfo`:    shows basic info
+ - `-nu`        or `--noUnicode`:   prints DataDump in ascii instead of unicode
+ - `-np`        or `--noPrint`:     disables print instruction to terminal
+ - `-di`        or `--devInfo`:     shows bref dev info...
+ - `-fr`        or `--forceRender`: forces every frame to render
+ - `-db`        or `--debugBIOS`:   does the same as `--waitInput` but for the BIOS
+ - `-sb`        or `--skipBIOS`:    skips the BIOS from running(saves ROM debuging time)
 
 # How to make ROMs and compiling assembly programs:
 check out out the WorkingInProgress offical github page: https://billpc2684.github.io/TGR-PRTO-C/ \
