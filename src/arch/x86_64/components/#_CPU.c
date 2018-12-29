@@ -78,6 +78,7 @@ void *CPU_EXEC(void *null) {
   if (!strcmp(argv[i],"--forceRender"  ) | !strcmp(argv[i],"-fr"  )) { forceRender   = true; }
   if (!strcmp(argv[i],"--debugBIOS"    ) | !strcmp(argv[i],"-db"  )) { debugBIOS     = true; }
   if (!strcmp(argv[i],"--skipBIOS"     ) | !strcmp(argv[i],"-sb"  )) { skipBIOS      = true; }
+  if (!strcmp(argv[i],"--noDump"       ) | !strcmp(argv[i],"-nd"  )) { noDump        = true; }
  }
  if (CPU.debug == true) { printf("Debug Mode: Enabled\n"); } else { printf("Debug Mode: Disbaled\n"); }
  printf("\\Initialize Memory...\n");
@@ -140,8 +141,10 @@ void *CPU_EXEC(void *null) {
   for (int i=0;i<23;i++) { Title_Name[i] = TN[i]; }
   Title_lock = false;
  }
- dumpData("BIOS",BIOS,BIOSIZ,noUnicode,0,BIOSIZ);
- dumpData("ROM" ,ROM ,ROMSIZ,noUnicode,0,ROMSIZ);
+ if (!noDump) {
+  dumpData("BIOS",BIOS,BIOSIZ,noUnicode,0,BIOSIZ);
+  dumpData("ROM" ,ROM ,ROMSIZ,noUnicode,0,ROMSIZ);
+ }
  CPU.IS = BIOS.data; CPU.ISz = BIOS.size; CPU.IP = 0; CPU.SP = 0; CPU.BP = 0; CPU.reset = 0;
 
  //MAIN LOOP
