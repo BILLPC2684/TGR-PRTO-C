@@ -49,6 +49,7 @@ void *CPU_EXEC(void *null) {
  bool    *restart         = false;
  bool     debugBIOS       = false;
  bool     skipBIOS        = false;
+ bool     noDump          = false;
  int      skip            = 0;
  char    *REG             = "ABCDEFGH********"; //* is used for if REG[index] is out of bounds to prevent a crash
  char     execLoc[1024];
