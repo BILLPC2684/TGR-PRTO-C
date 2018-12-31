@@ -66,14 +66,14 @@ check out out the WorkingInProgress offical github page: https://billpc2684.gith
 (this should have everything you need)
 
 # Want to join our  discord server? it's free
-##Invite link: https://discord.gg/PWAf8ek
+## Invite link: https://discord.gg/PWAf8ek
 <br>
 <br>
 
-
-To compile programs for TGR, a python script is included named compile_TGRASM.py.\
-It takes 2 arguments: the first is the input file and the second is the output file.\
-Note: there mite be slight probblems with it skiping some instructions that are in the code, we are trying to fix that...\
+# How to make a TGR Assembly File?
+To compile programs for TGR, theres a python script is included named `compile_TGRASM.py`.\
+It takes 2-3 arguments: the first is the input file and the second is the output file(the 3rd is not needed unless says it so).\
+Note: there might be slight probblems with it skiping some instructions that are in the code, we are trying to fix that...\
 \
 The assembly code can contain any of the following instructions:\
 
