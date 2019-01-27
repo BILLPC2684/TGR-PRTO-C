@@ -1,6 +1,11 @@
 # Prerequisites
 *.d
 
+# Source files
+*.c
+# Header files
+*.h
+
 # Object files
 *.o
 *.ko
