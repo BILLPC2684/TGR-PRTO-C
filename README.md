@@ -11,20 +11,20 @@ BILLPC2684's offical: http://billcraft.byethost33.com/TheGameRazer/
 # Is the current build runnable? (will update)
 ## For Build: v0.0.34 Alpha
  - Runnable Build: `Yes`
- - Stable CPU EMU: `Yes`     (not completed)
+ - Stable CPU EMU: `Yes`     (Not completed)
  - Stable Memory:  `Yes`     (128 MB of RAM | 64 MB of VRAM)
  - Has Video:      `Yes`     (SDL | uses OpenGL)
  - Has Audio:      `No`      (Requesting help)
  - Has Inputs:     `Yes`     (SDL Window Input)
  - Has Network:    `No`      (Requesting help)
- - Saveable data:  `Yes`     (fully functional)
+ - Saveable data:  `Yes`     (Fully functional)
 ## NOTE: if the emulator crashes or glitch out, check your ROM before reporting(if someone else made the ROM then contact them)
 
 # Are ROMs free?
 Yes for the most part, now ppl can charge or setup a donation system for their ROMs
 ## We have no responsibility if your ROM gets hacked/modded or republished without your permission
 
-# What is required/suggested for building?
+# What is required for building?
 ## Linux
 Required Packages are located in: `linux-requirements.txt`\
 (all needs to be installed from your PackageManager)
