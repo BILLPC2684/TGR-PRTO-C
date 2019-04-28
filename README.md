@@ -78,30 +78,30 @@ Note: there might be slight probblems with it skiping some instructions that are
 The assembly code can contain any of the following instructions:
 
 - labels: (any word with a : after it, just like nasm assembly)
-- mov   <destination(reg)> <source(reg or int)> (load/mov 8-bit int)
-- jmp   [<label name>]
-- disp  <a(reg)>
-- add   <a(reg)> <B(reg or int)> <c(reg)>
-- sub   <a(reg)> <B(reg or int)> <c(reg)>
-- mul   <a(reg)> <B(reg or int)> <c(reg)>
-- div   <a(reg)> <B(reg or int)> <c(reg)>
-- inc   <a(reg)>
-- dec   <a(reg)>
-- cmpeq <a(reg)> <b(reg or int)> (skips next instruction if false)
-- cmpgt <a(reg)> <b(reg or int)> (skips next instruction if false)
-- cmplt <a(reg)> <b(reg or int)> (skips next instruction if false)
-- push  <a(reg or int)> (pushes data to top of the stack)
-- pop   <a(reg)> (pulls data from top of the stack)
-- swap  (swaps the top of the stack with the item below)
-- call  [<label name>] (calls label as function)
-- ret   (returns from function)
-- nop   (litteraly does nothing)
-- dsend <source(reg)> <Device(4-bit int)> <Inst(8-bit int)>
-- drecv <source(reg)> <Device(4-bit int)> <Inst(8-bit int)>
-- wait  (debug mode only)
-- gclk  <a(reg)> <reset(optinional)> (CPU clock outputs to a(reg) and reset is 2-bit)
-- raw   <0xOO,0xAB,0xCI,0xII,0xII,0xII> (O: Instruction[8-bit] | A/B/C: 3 REGS[12-bit] | I: Intermediate[24-bit])
-- hlt   (stop the program!)
+- `jmp   [<LabelName>]`
+- `mov   <destination(reg)> <source(reg or int)> (load/mov 8-bit int)`
+- `disp  <a(reg)>`
+- `add   <a(reg)> <B(reg or int)> <c(reg)>`
+- `sub   <a(reg)> <B(reg or int)> <c(reg)>`
+- `mul   <a(reg)> <B(reg or int)> <c(reg)>`
+- `div   <a(reg)> <B(reg or int)> <c(reg)>`
+- `inc   <a(reg)>`
+- `dec   <a(reg)>`
+- `cmpeq <a(reg)> <b(reg or int)>` (skips next instruction if false)
+- `cmpgt <a(reg)> <b(reg or int)>` (skips next instruction if false)
+- `cmplt <a(reg)> <b(reg or int)>` (skips next instruction if false)
+- `push  <a(reg or int)>` (pushes data to top of the stack)
+- `pop   <a(reg)>` (pulls data from top of the stack)
+- `swap`  (swaps the top of the stack with the item below)
+- `call  [<LabelName>]` (calls label as function)
+- `ret`   (returns from function)
+- `nop`   (litteraly does nothing)
+- `dsend <source(reg)> <Device(4-bit int)> <Inst(8-bit int)>`
+- `drecv <source(reg)> <Device(4-bit int)> <Inst(8-bit int)>`
+- `wait`  (debug mode only)
+- `gclk  <a(reg)> <reset(optinional)>` (CPU clock outputs to a(reg) and reset is 2-bit)
+- `raw   <0xOO,0xAB,0xCI,0xII,0xII,0xII>` (O: Instruction[8-bit] | A/B/C: 3 REGS[12-bit] | I: Intermediate[24-bit])
+- `hlt`   (stop the program!)
 
 # USE CALLFN IN STEAD OF CALL!
 
