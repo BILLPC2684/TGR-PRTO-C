@@ -78,9 +78,8 @@ Note: there might be slight probblems with it skiping some instructions that are
 The assembly code can contain any of the following instructions:
 
 - labels: (any word with a : after it, just like nasm assembly)
-- jmp   [<label name>]
 - mov   <destination(reg)> <source(reg or int)> (load/mov 8-bit int)
-- lmov  <destinationA(reg)> <destinationB(reg)> <source(reg or int)> (load/mov 16-bit int)
+- jmp   [<label name>]
 - disp  <a(reg)>
 - add   <a(reg)> <B(reg or int)> <c(reg)>
 - sub   <a(reg)> <B(reg or int)> <c(reg)>
