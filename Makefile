@@ -53,6 +53,7 @@ go:
 $(executable): $(assembly_object_files) $(c_object_files) $(cpp_object_files)
 	@echo linking...
 	@$(linker) -o $(executable) $(assembly_object_files) $(c_object_files) $(cpp_object_files) $(LDFLAGS) -pthread
+	@chmod +x $(executable)
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm

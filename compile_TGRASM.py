@@ -1,935 +1,580 @@
 #!/usr/bin/env python3
 
-import sys,os,re
-from array import array
-
-def save_bytecode(bytecode,name):
-  with open(name,"wb") as f:
-    arr = array('B', bytecode)
-    arr.tofile(f)
-
-global enTitle,title
-enTitle = False
-title = ""
-labels = {}
-instID = []
-linedecode = re.compile(r"\s*(?:(?P<label>\w+):)?(?: *(?P<opcode>\w+)(?: +(?P<arg>.*))?)?")
-datadef = re.compile(r"\s*(?P<label>\w+):\{(?P<contents>.*?)\}", re.MULTILINE | re.DOTALL)
-
-def get_all_subclasses(cls):
-    all_subclasses = []
-
-    for subclass in cls.__subclasses__():
-        all_subclasses.append(subclass)
-        all_subclasses.extend(get_all_subclasses(subclass))
-
-    return all_subclasses
-
-
-class OpcodeError(SystemExit):
-  pass
+import sys,os
 
 def reg(x):
-  try:
-    return "abcdefgh".index(x)
-  except ValueError:
-    return -1
+ try:
+  return "abcdefgh".index(x)
+ except ValueError:
+  return -1
 
 def combinetochar(a,b):
-  if a < 0xf and b < 0xf:
-    return a | b << 4
+ if b < 0xf and a < 0xf:
+  return b | a << 4
+ else:
+  raise ValueError("values too large to fit in char")
+
+def include(FN):
+ global asm
+ try:
+  with open(FN,"r") as file:
+   asm+=file.readlines()
+ except IOError:
+  print("ImportError: File \""+FN+"\" could not be found...")
+  exit(-1)
+
+def replace(st,rp):
+ loc = st.find(rp)
+ if loc == -1: return st[:loc]+st[loc+len(rp):]
+ else: return st
+
+ascii = "................................ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.................................¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ.............................."
+def dumpData(name, data, use_non, start, end):
+ bytes = []
+ print("._______._______________________________________________.________________.\n|{}".format(name),end='')
+ if   len(name) < 2:  print("      ",end='')
+ elif len(name) < 3:  print("     ",end='')
+ elif len(name) < 4:  print("    ",end='')
+ elif len(name) < 5:  print("   ",end='')
+ elif len(name) < 6:  print("  ",end='')
+ elif len(name) < 7:  print(" ",end='')
+ print("|00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F|0123456789ABCDEF|\n|-------|-----------------------------------------------|----------------|\n|0000000|",end='')
+ j,l,m = 1,0,""
+ for i in range(start,end):
+  if i >= len(data): break
+  if j > 15:
+   bytes.append(data[i])
+   if data[i] < 0x10: print("0",end='');
+   print("{}|".format(hex(data[i])[2:]),end='')
+   for k in range(16):
+    if use_non: print(ascii[bytes[i-16+k]],end='')
+    else:       print(ascii[bytes[i-16+k]],end='')
+   l=0
+   print("|\n|",end='')
+   if   i+1 < 0x1:        print("0000000{}|".format(hex(i+1)[2:]),end='')
+   elif i+1 < 0x10:       print("000000{}|".format(hex(i+1)[2:]),end='')
+   elif i+1 < 0x100:      print("00000{}|".format(hex(i+1)[2:]),end='')
+   elif i+1 < 0x1000:     print("0000{}|".format(hex(i+1)[2:]),end='')
+   elif i+1 < 0x10000:    print("000{}|".format(hex(i+1)[2:]),end='')
+   elif i+1 < 0x100000:   print("00{}|".format(hex(i+1)[2:]),end='')
+   elif i+1 < 0x1000000:  print("0{}|".format(hex(i+1)[2:]),end='')
+   elif i+1 < 0x10000000: print("{}|".format(hex(i+1)[2:]),end='')
+   j = 0
   else:
-    raise ValueError("values too large to fit in char")
-
-def extend(x,to,extendhar=0x00):
-  return list(x[:to]) + [0 for _ in range(to-len(x))]
-
-class instruction:
-  def __init__(self):
-    pass
-
-  def instruction(self,*args):
-    self.instr = extend(args,6)
-
-
-class nop(instruction):
-  def prehandle(self,*args):
-    if len(args) > 0:
-      raise OpcodeError("expected 0 operands, got {}".format(len(args)))
-
-    self.instruction(0xFF,0x00,0x00,0x00,0x00,0x00)
-    return 6
-
-
-  def handle(self):
-    pass
-
-class raw(instruction):
-  def prehandle(self,*args):
-    inst = []
-    if len(args) != 6:
-      raise OpcodeError("expected 6 operands, got {}".format(len(args)))
-    for j in range(len(args)):
-      try:
-        inst.append(int(args[j],0))
-      except:
-        raise OpcodeError("invalid operand {}. should be register name or int".format(type(args[j])))
-    self.instruction(inst[0],inst[1],inst[2],inst[3],inst[4],inst[5])
-    return 6
-
-
-  def handle(self):
-    pass
-
-class add(instruction):
-  def prehandle(self,*args):
-    if len(args) != 3:
-      raise OpcodeError("expected 3 operands, got {}".format(len(args)))
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(i))
-
-    if reg(args[2]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(i))
-    
-    if reg(args[1]) < 0:
-      try:
-        res = int(args[1],0)
-      except:
-        raise OpcodeError("invalid operand {}. should be register name or int".format(i))
-      self.instruction(0x01,combinetochar(0x00,reg(args[0])),combinetochar(0x0,reg(args[2])),0x00,(res&0xff00)>>8,res&0x00ff)
-      return 6
-    else:
-      self.instruction(0x01,combinetochar(reg(args[1]),reg(args[0])),combinetochar(0x0,reg(args[2])))
-      return 6
-
-
-  def handle(self):
-    pass
-
-class inc(instruction):
-  def prehandle(self,*args):
-    if len(args) != 1:
-      raise OpcodeError("expected 1 operand, got {}".format(len(args)))
-    self.alias = add()
-    return self.alias.prehandle(args[0],"1",args[0])
-
-
-  def handle(self):
-    self.instr = self.alias.instr
-
-class dec(instruction):
-  def prehandle(self,*args):
-    if len(args) != 1:
-      raise OpcodeError("expected 1 operand, got {}".format(len(args)))
-    self.alias = sub()
-    return self.alias.prehandle(args[0],"1",args[0])
-
-  def handle(self):
-    self.instr = self.alias.instr
-
-class call(instruction):
-  def prehandle(self,*args):
-    if len(args) != 1:
-      raise OpcodeError("expected 1 operand, got {}".format(len(args)))    
-
-    if args[0].startswith("[") and args[0].endswith("]"):
-      self.label = args[0][1:-1]
-      return 6        
-    else:
-      raise OpcodeError("not a label: {}.".format(args[0]))    
-    
-  def handle(self):
-    if self.label in labels:
-      self.instruction(0x25,0x00,0x00,(labels[self.label]&0xff0000)>>16,(labels[self.label]&0x00ff00)>>8,labels[self.label]&0x0000ff)
-    else:
-      raise OpcodeError("could not find label {}.".format(self.label))
-
-class ret(instruction):
-  def prehandle(self,*args):
-    if len(args) != 0:
-      raise OpcodeError("expected 0 operands, got {}".format(len(args)))    
-    self.instruction(0x26)        
-    return 6
-
-  def handle(self):
-    pass
-
-class sub(instruction):
-  def prehandle(self,*args):
-    if len(args) != 3:
-      raise OpcodeError("expected 3 operands, got {}".format(len(args)))
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
-
-    if reg(args[2]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[2]))
-    
-    if reg(args[1]) < 0:
-      try:
-        res = int(args[1],0)
-      except:
-        raise OpcodeError("invalid operand {}. should be register name or int".format(i))
-      self.instruction(0x02,combinetochar(0x00,reg(args[0])),combinetochar(0x00,reg(args[2])),0x00,(res&0xff00)>>8,res&0x00ff)
-      return 6
-    else:
-      self.instruction(0x02,combinetochar(reg(args[1]),reg(args[0])),combinetochar(0x00,reg(args[2])))
-      return 6
-
-
-  def handle(self):
-    pass
-
-class div(instruction):
-  def prehandle(self,*args):
-    if len(args) != 3:
-      raise OpcodeError("expected 3 operands, got {}".format(len(args)))
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
-
-    if reg(args[2]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[2]))
-    
-    if reg(args[1]) < 0:
-      try:
-        res = int(args[1],0)
-      except:
-        raise OpcodeError("invalid operand {}. should be register name or int".format(i))
-      self.instruction(0x04,combinetochar(0x00,reg(args[0])),combinetochar(0x00,reg(args[2])),0x00,(res&0xff00)>>8,res&0x00ff)
-      return 6
-    else:
-      self.instruction(0x04,combinetochar(reg(args[1]),reg(args[0])),combinetochar(0x00,reg(args[2])))
-      return 6
-
-
-  def handle(self):
-    pass
-
-class mul(instruction):
-  def prehandle(self,*args):
-    if len(args) != 3:
-      raise OpcodeError("expected 3 operands, got {}".format(len(args)))
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(i))
-
-    if reg(args[2]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(i))
-    
-    if reg(args[1]) < 0:
-      try:
-        res = int(args[1],0)
-      except:
-        raise OpcodeError("invalid operand {}. should be register name or int".format(i))
-      self.instruction(0x03,combinetochar(0x00,reg(args[0])),combinetochar(0x0,reg(args[2])),0x00,(res&0xff00)>>8,res&0x00ff)
-      return 6
-    else:
-      self.instruction(0x03,combinetochar(reg(args[1]),reg(args[0])),combinetochar(0x0,reg(args[2])))
-      return 6
-
-
-  def handle(self):
-    pass
-
-
-class rrom(instruction):
-  def prehandle(self,*args):
-    if len(args) not in (2,3):
-      raise OpcodeError("expected 3 operands, got {}".format(len(args)))
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
-
-    if reg(args[1]) < 0:
-      try:
-        res = int(args[1],0)
-      except:
-        raise OpcodeError("invalid operand {}. should be register name or int".format(args[1]))
-      self.instruction(0x18,combinetochar(0x00,reg(args[0])),0x00,0x00,(res&0xff00)>>8,res&0x00ff)
-      return 6
-    if reg(args[2]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[2]))
-    else:
-      self.instruction(0x17,combinetochar(reg(args[1]),reg(args[0])),combinetochar(0x00,reg(args[2])))
-      return 6
-
-
-  def handle(self):
-    pass
-
-class push(instruction):
-  def prehandle(self,*args):
-    if len(args) != 1:
-      raise OpcodeError("expected 1 operand, got {}".format(len(args)))
-
-    if reg(args[0]) < 0:
-      try:
-        res = int(args[0],0)
-      except:
-        raise OpcodeError("invalid operand {}. should be register name or int".format(args[0]))
-      self.instruction(0x24,0x01,0x00,0x00,(res&0xff00)>>8,res&0x00ff)
-      return 6
-    else:
-      self.instruction(0x24,combinetochar(0x00,reg(args[0])))
-      return 6
-
-  def handle(self):
-    pass
-
-class pop(instruction):
-  def prehandle(self,*args):
-    if len(args) != 1:
-      raise OpcodeError("expected 1 operand, got {}".format(len(args)))
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
-    else:
-      self.instruction(0x22,combinetochar(0x00,reg(args[0])))
-    return 6
-
-
-  def handle(self):
-    pass
-
-class rbios(instruction):
-  def prehandle(self,*args):
-    if len(args) == 2:
-      if reg(args[0]) < 0:
-        raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
-      
-      try:
-        res = int(args[1],0)
-      except:
-        raise OpcodeError("invalid operand {}. should be register name or int".format(args[0]))
-      self.instruction(0x22,combinetochar(0x00,reg(args[0])),0x00,0x00,(res&0xff00)>>8,res&0x00ff)
-    elif len(args) == 3:
-      if reg(args[0]) < 0:
-        raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
-      
-      if reg(args[1]) < 0:
-        raise OpcodeError("invalid operand {}. should be register name".format(args[1]))
-      
-      if reg(args[2]) < 0:
-        raise OpcodeError("invalid operand {}. should be register name".format(args[2]))
-      self.instruction(0x21,combinetochar(reg(args[1]),reg(args[0])),combinetochar(0x00,reg(args[2])))
-    else:
-      raise OpcodeError("expected 2 or 3 operands, got {}".format(len(args)))
-    return 6
-
-
-  def handle(self):
-    pass
-
-class hlt(instruction):
-  def prehandle(self,*args):
-    if len(args) != 0:
-      raise OpcodeError("expected 0 operands, got {}".format(len(args)))
-    
-    self.instruction(0x19,0x00,0x00,0x00,0x00,0x01)
-    return 6
-
-
-  def handle(self):
-    pass
-
-class exec(instruction):
-  def prehandle(self,*args):
-    if len(args) != 2:
-      raise OpcodeError("expected 2 operands, got {}".format(len(args)))
-    
-    try:
-      res1 = int(args[0],0)
-    except:
-      raise OpcodeError("invalid operand {}. should be int".format(i))
-
-    try:
-      res2 = int(args[1],0)
-    except:
-      raise OpcodeError("invalid operand {}. should be int".format(i))
-
-    if res1 > 0xff:
-      raise OpcodeError("invalid operand {}. int should be less than 256".format(args[1]))
-    if res2 > 0xffffff:
-      raise OpcodeError("invalid operand {}. int should be less than 16777216".format(args[1]))
-
-    self.instruction(0x20,((res1&0x0F)<<4|(res1&0xF0)>>4),0x00,(res2&0xff0000)>>16,(res2&0x00ff00)>>8,res2&0x0000ff)
-    return 6
-
-
-  def handle(self):
-    pass
-
-class split(instruction):
-  def prehandle(self,*args):
-    if len(args) != 4:
-      raise OpcodeError("expected 4 operands, got {}".format(len(args)))
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
-
-    if reg(args[1]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[1]))
-    
-    if reg(args[2]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[2]))
-    try:
-      arg3 = int(args[3],0)
-    except:
-      raise OpcodeError("invalid operand {}. should be int".format(args[3]))
-
-    self.instruction(0x09,combinetochar(reg(args[1]),reg(args[0])),combinetochar(0x0,reg(args[2])),0x00,0x00,arg3)
-    return 6
-
-  def handle(self):
-    pass
-
-class combine(instruction):
-  def prehandle(self,*args):
-    if len(args) != 4:
-      raise OpcodeError("expected 4 operands, got {}".format(len(args)))
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
-
-    if reg(args[1]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[1]))
-    
-    if reg(args[2]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[2]))
-    try:
-      arg3 = int(args[3],0)
-    except:
-      raise OpcodeError("invalid operand {}. should be int".format(args[3]))
-
-    self.instruction(0x0A,combinetochar(reg(args[1]),reg(args[0])),combinetochar(0x0,reg(args[2])),0x00,0x00,arg3)
-    return 6
-
-  def handle(self):
-    pass
-
-class swap(instruction):
-  def prehandle(self,*args):
-    if len(args) != 0:
-      raise OpcodeError("expected 0 operands, got {}".format(len(args)))
-    else:
-      self.instruction(0x27)
-      return 6
-
-
-  def handle(self):
-    pass
-
-class mov(instruction):
-  def prehandle(self,*args):
-    if len(args) != 2:
-      raise OpcodeError("expected 2 operands, got {}".format(len(args)))
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
-
-    if reg(args[1]) < 0:
-
-      if args[1].startswith("[") and args[1].endswith("]"):
-        self.label = args[1][1:-1]
-        self.reg = args[0]
-        return 6
-      else: 
-        try:
-          res = int(args[1],0)
-        except:
-          raise OpcodeError("invalid operand {}. should be register name or int".format(args[1]))
-      
-      if res > 0xffff:
-        raise OpcodeError("invalid operand {}. int should be less than 65536".format(args[1]))
-      self.instruction(0x00,combinetochar(0x0,reg(args[0])),0x00,0x00,(res&0xff00)>>8,res&0x00ff)
-      return 6
-    else:
-      self.instruction(0x1f,combinetochar(reg(args[0]),reg(args[1])))
-      return 6
-
-  def handle(self):
-    if hasattr(self,"label"):
-      if self.label in labels:
-        if labels[self.label] > 0xFFFF:
-          raise OpcodeError("invalid operand {}. int should be less than 65536(0xFFFF)".format(labels[self.label]))
-          #raise OpcodeError("invalid operand {}. int should be less than 16777215".format(labels[self.label]))
-        self.instruction(0x00,combinetochar(0x0,reg(self.reg)),0x00,0x00,(labels[self.label]&0xff00)>>8,labels[self.label]&0x00ff)
-      else:
-        raise OpcodeError("could not find label {}.".format(self.label))
-class lmov(instruction):
-  def prehandle(self,*args):
-    if len(args) != 3:
-      raise OpcodeError("expected 3 operands, got {}".format(len(args)))
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
-    if reg(args[1]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[1]))
-
-    if reg(args[2]) < 0:
-
-      if args[2].startswith("[") and args[2].endswith("]"):
-        self.label = args[2][1:-1]
-        self.regA = args[0]
-        self.regB = args[1]
-        return 6
-      else:
-        try:
-          res = int(args[2],0)
-        except:
-          raise OpcodeError("invalid operand {}. should be register name or int".format(args[2]))
-      """0xAAAABBBB"""
-      if res > 0xFFFFFFFF:
-        raise OpcodeError("invalid operand {}. int should be less than 4294967295(0xFFFFFFFF)".format(args[2]))
-      self.instruction(0x00,combinetochar(0x0,reg(args[0])),0x00,0x00,(res&0x0000ff00)>> 8,res&0x000000ff)
-      self.instruction(0x00,combinetochar(0x0,reg(args[1])),0x00,0x00,(res&0xff000000)>>24,res&0x00ff0000>>16)
-      return 6
-
-  def handle(self):
-    if hasattr(self,"label"):
-      if self.label in labels:
-        if labels[self.label] > 0xFFFFFFFF:
-          raise OpcodeError("invalid operand {}. int should be less than 4294967295(0xFFFFFFFF)".format(args[2]))
-        self.instruction(0x00,combinetochar(0x0,reg(self.regA)),0x00,0x00,(labels[self.label]&0x0000ff00)>>8,labels[self.label]&0x000000ff)
-        self.instruction(0x00,combinetochar(0x0,reg(self.regB)),0x00,0x00,(labels[self.label]&0xff000000)>>24,labels[self.label]&0x00ff0000>>16)
-      else:
-        raise OpcodeError("could not find label {}.".format(self.label))
-
-"""class rpos(instruction):
-  def prehandle(self,*args):
-    if len(args) != 2:
-      raise OpcodeError("expected 2 operands, got {}".format(len(args)))    
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))    
-
-    if reg(args[1]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))    
-
-    self.instruction(0x10,combinetochar(reg(args[1]),reg(args[0])),0x00,0x00,0x00,0x00)
-    return 6
-
-
-  def handle(self):
-    pass
-
-class wram(instruction):
-  def prehandle(self,*args):
-    if len(args) < 2 or len(args) > 3:
-      raise OpcodeError("expected 2 to 3 operands, got {}".format(len(args)))    
-    
-    try:
-      res0 = int(args[0],0)
-    except:
-      raise OpcodeError("invalid operand {}. should be int".format(args[2]))
-    if res0 > 0x1:
-      raise OpcodeError("invalid operand {}. int should be less than 1".format(args[1]))
-    
-#    if reg(args[1]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))    
-    
-    if len(args) == 3:
-      try:
-        res = int(args[2],0)
-      except:
-        raise OpcodeError("invalid operand {}. should be int".format(args[2]))
-      if res1 > 0xfffffff:
-        raise OpcodeError("invalid operand {}. int should be less than 268435456(0x10000000)".format(args[2]))
-      self.instruction(0x11,combinetochar(reg(args[1]),reg(args[0])),combinetochar(((res&0xf000000)>>24),0x1),(res&0x0ff0000)>>16,(res&0x000ff00)>>8,res&0x000000ff)
-    else:
-      self.instruction(0x11,combinetochar(reg(args[1]),reg(args[0])),0x00,0x00,0x00,0x00)
-    return 6
-
-
-  def handle(self):
-    pass
-
-class rram(instruction):
-  def prehandle(self,*args):
-    if len(args) < 2 or len(args) > 3:
-      raise OpcodeError("expected 2 to 3 operands, got {}".format(len(args)))    
-    
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))    
-    
-    try:
-      res1 = int(args[1],0)
-    except:
-      raise OpcodeError("invalid operand {}. should be int".format(args[1]))
-    if res1 > 0xf:
-      raise OpcodeError("invalid operand {}. int should be less than 16".format(args[1]))
-    
-    try:
-      res2 = int(args[2],0)
-    except:
-      raise OpcodeError("invalid operand {}. should be int".format(args[2]))
-    if res1 > 0x1:
-      raise OpcodeError("invalid operand {}. int should be less than 1".format(args[1]))
-    
-    if len(args) == 3:
-      try:
-        res = int(args[3],0)
-      except:
-        raise OpcodeError("invalid operand {}. should be int".format(args[2]))
-      if res1 > 0xfffffff:
-        raise OpcodeError("invalid operand {}. int should be less than 268435456(0x10000000)".format(args[2]))
-      self.instruction(0x12,combinetochar(reg(args[1]),reg(args[0])),combinetochar(((res&0xf000000)>>24),0x1),(res&0x0ff0000)>>16,(res&0x000ff00)>>8,res&0x000000ff)
-    else:
-      self.instruction(0x12,combinetochar(reg(args[1]),reg(args[0])),0x00,0x00,0x00,0x00)
-    return 6
-
-
-  def handle(self):
-    pass"""
-
-class dsend(instruction):
-  def prehandle(self,*args):
-    if len(args) != 3:
-      raise OpcodeError("expected 3 operands, got {}".format(len(args)))    
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))    
-
-    try:
-      res1 = int(args[1],0)
-    except:
-      raise OpcodeError("invalid operand {}. should be int".format(args[1]))
-    if res1 > 0xf:
-      raise OpcodeError("invalid operand {}. int should be less than 16".format(args[1]))
-
-    try:
-      res2 = int(args[2],0)
-    except:
-      raise OpcodeError("invalid operand {}. should be int".format(args[2]))
-    if res2 > 0xff:
-      raise OpcodeError("invalid operand {}. int should be less than 256".format(args[2]))
-
-    
-    self.instruction(0x1c,combinetochar(0x00,reg(args[0])),0x00,0x00,combinetochar(res1,0x00),res2)
-    return 6
-
-
-  def handle(self):
-    pass
-
-class drecv(instruction):
-  def prehandle(self,*args):
-    if len(args) != 3:
-      raise OpcodeError("expected 3 operands, got {}".format(len(args)))    
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))    
-
-    try:
-      res1 = int(args[1],0)
-    except:
-      raise OpcodeError("invalid operand {}. should be int".format(args[1]))
-    if res1 > 0xf:
-      raise OpcodeError("invalid operand {}. int should be less than 16".format(args[1]))
-
-    try:
-      res2 = int(args[2],0)
-    except:
-      raise OpcodeError("invalid operand {}. should be int".format(args[2]))
-    if res2 > 0xff:
-      raise OpcodeError("invalid operand {}. int should be less than 256".format(args[2]))
-
-    
-    self.instruction(0x1d,combinetochar(0x00,reg(args[0])),0x00,0x00,combinetochar(res1,0x00),res2)
-    return 6
-
-
-  def handle(self):
-    pass
-
-class cmpeq(instruction):
-  def prehandle(self,*args):
-    if len(args) != 2:
-      raise OpcodeError("expected 2 operands, got {}".format(len(args)))    
-    
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))    
-    
-    if reg(args[1]) < 0:
-     print("cmpeq IMM ",reg(args[0]),args[1])
-     res = 0
-     try:
-      res = int(args[1],0)
-     except:
-       raise OpcodeError("invalid operand {}. should be int".format(args[1]))
-     if res > 0xffff:
-      raise OpcodeError("invalid operand {}. int should be less than 16-bit({})".format(args[1],0x10000))
-     self.instruction(0x0d,combinetochar(0x0,reg(args[0])),0x10,0x00,(res&0xff00)>>8,res&0x00ff)
-     return 6
-    
-    print("cmpeq ",reg(args[0]),reg(args[1]))
-    self.instruction(0x0d,combinetochar(reg(args[1]),reg(args[0])))
-    return 6
-
-
-  def handle(self):
-    pass
-
-class cmplt(instruction):
-  def prehandle(self,*args):
-    if len(args) != 2:
-      raise OpcodeError("cmplt: expected 2 operands, got {}".format(len(args)))    
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))    
-
-    if reg(args[1]) < 0:
-     print("cmplt IMM ",reg(args[0]),args[1])
-     res = 0
-     try:
-      res = int(args[1],0)
-     except:
-       raise OpcodeError("invalid operand {}. should be int".format(args[1]))
-     if res > 0xffff:
-      raise OpcodeError("invalid operand {}. int should be less than 16-bit({})".format(args[1],0x10000))
-     self.instruction(0x0e,combinetochar(0x0,reg(args[0])),0x10,0x00,(res&0xff00)>>8,res&0x00ff)
-     return 6
-    
-    print("cmplt ",reg(args[0]),reg(args[1]))
-    self.instruction(0x0e,combinetochar(reg(args[1]),reg(args[0])))
-    return 6
-
-  def handle(self):
-    pass
-
-
-class cmpgt(instruction):
-  def prehandle(self,*args):
-    if len(args) != 2:
-      raise OpcodeError("cmpgt: expected 2 operands, got {}".format(len(args)))    
-
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))    
-
-    if reg(args[1]) < 0:
-     print("cmpgt IMM ",reg(args[0]),args[1])
-     res = 0
-     try:
-      res = int(args[1],0)
-     except:
-       raise OpcodeError("invalid operand {}. should be int".format(args[1]))
-     if res > 0xffff:
-      raise OpcodeError("invalid operand {}. int should be less than 16-bit({})".format(args[1],0x10000))
-     self.instruction(0x0f,combinetochar(0x0,reg(args[0])),0x10,0x00,(res&0xff00)>>8,res&0x00ff)
-     return 6
-    
-    print("cmpgt ",reg(args[0]),reg(args[1]))
-    self.instruction(0x0f,combinetochar(reg(args[1]),reg(args[0])))
-    return 6
-
-
-  def handle(self):
-    pass
-
-class jmp(instruction):
-  def prehandle(self,*args):
-    if len(args) != 1:
-      raise OpcodeError("expected 1 operands, got {}".format(len(args)))    
-
-    if args[0].startswith("[") and args[0].endswith("]"):
-      self.label = args[0][1:-1]
-      return 6
-    else:
-      raise OpcodeError("not a label: {}.".format(args[0]))
-    
-  def handle(self):
-    if self.label in labels:
-      self.instruction(0x0c,0x00,(labels[self.label]&0xff0000)>>24,(labels[self.label]&0xff0000)>>16,(labels[self.label]&0x00ff00)>>8,labels[self.label]&0x0000ff)
-    else:
-      raise OpcodeError("could not find label {}.".format(self.label))
-
-class wait(instruction):
-  def prehandle(self,*args):
-    if len(args) != 1:
-      raise OpcodeError("expected 1 operands, got {}".format(len(args)))    
-
-    try:
-      res0 = int(args[0],0)
-    except:
-      raise OpcodeError("invalid operand {}. should be int".format(args[0]))
-    self.instruction(0x29,0x00,(res0&0xff0000)>>24,(res0&0xff0000)>>16,(res0&0x00ff00)>>8,res0&0x0000ff)
-    return 6
-    
-  def handle(self):
-    pass
-
-class disp(instruction):
-  def prehandle(self,*args):
-    if len(args) > 3 or len(args) < 1:
-      raise OpcodeError("expected 1 to 3 operands, got {}".format(len(args)))
-    
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(args[0]))
-    pREG = [reg(args[0]),0,0]
-    
-    if len(args) == 2:
-      if reg(args[1]) < 0:
-        raise OpcodeError("invalid operand {}. should be register name".format(args[1]))
-      pREG[1] = reg(args[1])
-    
-    if len(args) == 3:
-      if reg(args[2]) < 0:
-        raise OpcodeError("invalid operand {}. should be register name".format(args[2]))
-      pREG[2] = reg(args[2])
+   if data[i] < 0x10: print("0",end='')
+   print(hex(data[i])[2:],end=' ')
+   bytes.append(data[i])
+  j+=1
+ if j > 0:
+  for i in range(j,16):
+   print("-- ",end='')
+   bytes.append(0x00)
+  print("--|",end='')
+  for i in range(0,j-1):
+   if use_non: print(ascii[bytes[j-16+i]],end='')
+   else:       print(ascii[bytes[j-16+i]],end='')
+  for i in range(j,16):
+   print(" ",end='')
+  print(" |")
+ print("|_______|_______________________________________________|________________|\n\\Size: {}/{} Bytes(".format(hex(len(data)),len(data)),end='')
+ if len(data) < 1024: print("{} KB)".format(len(data)/1024))
+ else: print("{} MB) of {}/{} bytes".format(len(data)/1024/1024,hex(len(data)),len(data)))
+
+#################################
+
+if len(sys.argv) < 2:
+ print("please give an assembly file to compile")
+elif len(sys.argv) < 3:
+ print("please give an output file")
+else:
+ asm = []
+ include(sys.argv[1])
+ FNout = sys.argv[2]
+ out=[]
+ labels = []
+ address = 0
+ preaddr = 0
+ instructions = ["raw", "mov", "lmov", "add", "inc", "sub", "dec", "mul", "div", "and", "or", "xor", "bsl", "bsr", "not", "split", "combine", "jmp", "led", "cmpeq", "cmplt", "cmpgt", "rpos", "wram", "rram", "wvram", "rvram", "rsav", "wsav", "rrom", "hlt", "disp", "flags", "dsend", "drecv", "icout", "exec", "rbios", "push", "pop", "call", "ret", "swap", "gclk", "wait", "nop"]
+ 
+ ncs = True
+ title = False
+
+ print("first scan checks for %<flags> and data")
+ for i in range(len(asm)):
+  asm[i] = asm[i].replace("\t", " ")
+  line = asm[i].split("\n")[0].split(";")[0].split(" ")
+  for j in range(len(line)):
+   try: line.remove('')
+   except ValueError: p=0
+  print("[line: "+str(i)+"\t| "+str(preaddr)+"\t]"+asm[i],end='')
+  if len(line) < 1: continue
+  if   line[0] == "%NOCHECKSUM":
+   ncs = False
+   asm[i] = "";
+  elif line[0] == "%TITLE":
+   title = True
+   asm[i] = "";
+  elif line[0] == "%include":
+   include(line[1])
+   asm[i] = ""
+  elif ":" in line[0]:
+   if "{" in line[0]:
+    line = line[0].split(":")
+    labels.append([line[0],preaddr]); j=i
+    while j<len(asm):
+     if i==j: pline = (asm[j].split("\n")[0].split(";")[0]+" ")[len(line[0])+2]
+     else: pline = asm[j].split("\n")[0].split(";")[0]
+     for k in pline.split(","):
+      if "0x" in k and not "\n" in k: preaddr+= 1
+      if "}" in k: j=len(asm); break
+      if k == asm[len(asm[i])]: print("DataError: Data from line "+str(i)+" was expecting \"}\" before reaching the end of the program...."); exit(-1)
+     j=j+1
+   else:
+    labels.append([line[0].split(":")[0],preaddr])
+  else:
+   if line[0] in instructions:
+    if line[0] == "lmov": preaddr+=6
+    preaddr+=6
   
-    self.instruction(0x1a,combinetochar(pREG[1],pREG[0]),combinetochar(0x0,pREG[2]),0x00,0x00,len(args)-1)
-    return 6
+ if ncs == True:
+  out = [0x00,0x54,0x47,0x52]
+  address = 4
+  preaddr = 4
+ if title == True:
+  if len(argv) < 4:
+   print("please give an 8 char. ROM name")
+   exit()
+  sys.argv[3]+=" "*(8-len(sys.argv[3]))
+  out+=[ord(sys.argv[3][i]) for i in range(8)]
+  address+= 8
+  preaddr+= 8
 
-  def handle(self):
-    pass
-
-class gclk(instruction):
-  def prehandle(self,*args):
-    self.clear = 0
-    if len(args) < 1 or len(args) > 2:
-      raise OpcodeError("expected 1 or 2 operands, got {}".format(len(args)))
-    elif len(args) < 2:
-      self.clear = 0
-    else:
-      self.clear = int(args[1],0)
-    if reg(args[0]) < 0:
-      raise OpcodeError("invalid operand {}. should be register name".format(i))
-    self.reg = args[0]
-    return 6
-
-  def handle(self):
-    self.instruction(0x28,combinetochar(reg(self.reg),self.clear),combinetochar(0x0,0x00))
-
-def include(filestr):
-  for i in re.finditer(r"\%include +(.+)",filestr):
-    try:
-      with open(i.group(1).strip(),"r") as f:
-        file = f.read()
-      filestr = filestr[:i.start()] + include(file) + filestr[i.end():]
-
-    except FileNotFoundError:
-      print("couldn't include {}: file not found".format(repr(i.group(1))))
-
-  return filestr
-
-def main(argv):
-  fnamein = argv[1]
-  fnameout = argv[2]
-  global labels
-  instructions = []
-  dataobjs = []
-  with open(fnamein,"r") as f:
-    file = f.read()  
-  file = include(file)
-
-  if "%NOCHECKSUM" in file:
-    checksum=False
-    file = file.replace("%NOCHECKSUM","")
+ print("----------------------------------------------------\nsecond scan reads and compiles instructions")
+ p=0
+ for i in range(len(asm)):
+  line = asm[i].split("\n")[0].split(";")[0].split(" ")
+  for j in range(len(line)):
+   try: line.remove('')
+   except ValueError: p=p
+  if len(line) < 1: print("[line: "+str(i)+"\t| "+str(address)+"\t] *LINE FLAGED AS UN-USABLE BY FIRST SCAN*"); continue
+  elif ":" in line[0]:
+   if "{" in line[0]:
+    line = line[0].split(":"); j=i
+    while j<len(asm):
+     if i==j: pline = (asm[j].split("\n")[0].split(";")[0]+" ")[len(line[0])+2]
+     else: pline = asm[j].split("\n")[0].split(";")[0]
+     print("[line: "+str(j)+"\t| "+str(address)+"\t]"+asm[j],end='')
+     for k in pline.split(","):
+      if "0x" in k and not "\n" in k: out.append(int(k,16)); address+= 1
+      if "}" in k: p=j; j=len(asm); break
+      if k == asm[len(asm[i])]: print("DataError: Data from line "+str(i)+" was expecting \"}\" before reaching the end of the program...."); exit(-1)
+     j=j+1
   else:
-    checksum=True
-  address = (4 if checksum else 0)+6
-
-  if "%TITLE" in file:
-    enTitle = True
-    file = file.replace("%TITLE","")
-  else:
-    enTitle = False
-  address = (address if not enTitle else 18)
-
-  for m in datadef.finditer(file):
-    data = [int(i.strip(),0) for i in m.group("contents").split(",") if i.strip() != ""]
-    for i in data:
-      if i > 0xff:
-        print("data too large. data should be (max) 8 bit comma seperated")
-        exit()
-    labels[m.group("label")] = address
-    address += len(data)
-    dataobjs += data
-    print(m.group("label"),address)
-  file = datadef.sub("",file)
-
-  with open("temp.txt","w") as f:
-    f.write(file)
-  os.system("gcc -E -x c -P -C --std=c99 temp.txt >temp1.txt")
-  with open("temp1.txt","r") as f:
-    file = f.read()
-
-  commentrm = re.compile(r"/\*.*\*/",re.MULTILINE | re.DOTALL)
-  file = commentrm.sub("",file).replace("__SPACE__",' ').replace("__NEWLINE__",'\n')
-  # print(file)
-  os.remove("temp.txt")
-  os.remove("temp1.txt")
-
-  lines = [i.split(";")[0] for i in file.split("\n")]
-
-  for linenum,i in enumerate(lines):
-    print(linenum,i)
-    m = linedecode.match(i)
-    if m:
-      if m.group("label"):
-        print("Lable \""+m.group("label")+"\" at: "+str(address))
-        labels[m.group("label")] = address
-      if m.group("opcode"):
-        for j in get_all_subclasses(instruction):
-          if j.__name__ == m.group("opcode"):
-            instr = j()
-            instID.append(i)
-            instructions.append(instr)
-            if m.group("arg"):
-              address += instr.prehandle(*[i.strip() for i in m.group("arg").split(",")])
-            else:
-              address += instr.prehandle()
-            break
-        else:
-          print("invalid opcode on line {}".format(linenum))
-          print(i.strip())
-          exit()
-    else:
-      print("error on line {}".format(linenum))
-      print(i.strip())
-      exit()
-#  j = 0
-  for i in instructions:
-    #print(instID[j])
-    i.handle()
-    #j+=1
-
-  if enTitle:
-    add = 12
-  elif checksum:
-    add = 4
-  else:
-    add = 0
-
-  location = 6 + add + len(dataobjs)
-  if location > 0xFFFFFF:
-    print("too much data... WIP")
-    exit()
-
-  if enTitle == True:
-   if len(argv) < 4:
-    print("please give an 8 char. ROM name")
-    exit()
-   argv[3]+=" "*(8-len(argv[3]))
-   res = ([0x01,0x54,0x47,0x52]+[ord(argv[3][i]) for i in range(8)] if checksum else []) + [0x0C,0x00,0x00,(location&0x00ff0000)>>16,(location&0x0000ff00)>>8,location&0x000000ff] + dataobjs
-  else:
-   res = ([0x00,0x54,0x47,0x52] if checksum else []) + [0x0C,0x00,0x00,(location&0x00ff0000)>>16,(location&0x0000ff00)>>8,location&0x000000ff] + dataobjs
+   if i>p: print("[line: "+str(i)+"\t| "+str(address)+"\t]"+asm[i],end='')
+  if line[0] in instructions:
+   if len(line) < 2: args = []
+   else: args = line[1].split(",")
+   print("found instruction: "+line[0]+" at ["+str(i)+"|"+str(address)+"]")
    
-  for i in instructions:
-    res += i.instr
+   if line[0] == "raw":
+    if len(args) != 6:
+     print("ERROR at line "+str(i)+": the instruction \"RAW\" requres 6 arguments, got "+str(len(args)))
+     exit(-1)
+    j=0
+    try:
+     while j<7:
+      print(j,args[j],args[j][:2] == "0x")
+      out+=int(args[j],16)&0xFF
+      j=j+1
+    except TypeError:
+     print("ERROR at line "+str(i)+"[0]: Value at index["+str(j)+"] for \"RAW\" is invalid (got \""+args[j]+"\")"); exit(-1)
+   
+   if line[0] == "mov":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if "[" in args[1]:
+     if "]" in args[1]:
+      k = False
+      for j in labels:
+       if args[1][1:-1] == j[0]: out+=[0x00,combinetochar(reg(args[0]),0),0x00,0x00,(j[1]&0x000FF00)>> 8,j[1]&0x00000FF]; k = True; break
+      if k == False: print("ERROR at line "+str(i)+"[1]: Label \""+args[1][1:-1]+"\" was not found or is invalid\n",labels); print("\""+str(args[1][1:-1])+"\"\n\""+str(j[0])+"\""); exit(-1)
+     else: print("ERROR at line "+str(i)+"[1]: Expected \"]\" near label"); exit(-1)
+    else:
+     print(reg(args[0]),args[0],"|",reg(args[1]),args[1])
+     if reg(args[1]) < 0:
+      out+=[0x00,combinetochar(reg(args[0]),0),0x00,0x00,(int(args[1],16)&0x000FF00)>> 8,int(args[1],16)&0x00000FF]
+     else:
+      out+=[0x21,combinetochar(reg(args[0]),reg(args[1])),0x00,0x00,0x00,0x00]
+#    else:
+#     print("ERROR at line "+str(i)+": was expecting REG or Value for IMM but is invalid (got \""+args[1]+"\")"); exit(-1)
+   
+   if line[0] == "lmov":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0: print("ERROR at line "+str(i)+"[1]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+    if "[" in args[2]:
+     if "]" in args[2]:
+      k = False
+      for j in labels:
+       if args[2][1:-1] == j[0]:
+        out+=[0x00,combinetochar(reg(args[0]),0),0x00,0x00,(j[1]&0x000FF00)>> 8, j[1]&0x00000FF]
+        out+=[0x00,combinetochar(reg(args[1]),0),0x00,0x00,(j[1]&0x00F0000)>>24,(j[1]&0x0FF0000)>>16]
+        k = True; break
+      if k == False: print("ERROR at line "+str(i)+"[2]: Label \""+args[1][1:-1]+"\" was not found or is invalid\n",labels); print("\""+str(args[1][1:-1])+"\"\n\""+str(j[0])+"\""); exit(-1)
+     else: print("ERROR at line "+str(i)+"[2]: Expected \"]\" near label"); exit(-1)
+    else:
+     out+=[0x00,combinetochar(reg(args[0]),0),0x00,0x00,(int(args[2],16)&0x000FF00)>> 8, int(args[2],16)&0x00000FF]
+     out+=[0x00,combinetochar(reg(args[1]),0),0x00,0x00,(int(args[2],16)&0xF000000)>>24,(int(args[2],16)&0x0FF0000)>>16]
+    address+=6 # takes up 2 instuctions(12 bytes)
+   
+   if line[0] == "add":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0:
+     out+=[0x01,combinetochar(reg(args[0]),0),combinetochar(reg(args[2]),0),0x00,(int(args[1],16)&0x0000FF00)>>8,int(args[1],16)&0x000000FF]
+    else:
+     out+=[0x01,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0),0x00,0x00,0x00]
+   
+   if line[0] == "inc":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    out+=[0x01,combinetochar(reg(args[0]),0),combinetochar(reg(args[0]),0),0x00,0x00,0x01]
+   
+   if line[0] == "sub":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0:
+     out+=[0x02,combinetochar(reg(args[0]),0),combinetochar(reg(args[2]),0),0x00,(int(args[1],16)&0x0000FF00)>>8,int(args[1],16)&0x000000FF]
+    else:
+     out+=[0x02,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0),0x00,0x00,0x00]
+   
+   if line[0] == "dec":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    out+=[0x02,combinetochar(reg(args[0]),0),combinetochar(reg(args[0]),0),0x00,0x00,0x01]
+   
+   if line[0] == "mul":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0:
+     out+=[0x03,combinetochar(reg(args[0]),0),combinetochar(reg(args[2]),0),0x00,(int(args[1],16)&0x0000FF00)>>8,int(args[1],16)&0x000000FF]
+    else:
+     out+=[0x03,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0),0x00,0x00,0x00]
+   
+   if line[0] == "div":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0:
+     out+=[0x04,combinetochar(reg(args[0]),0),combinetochar(reg(args[2]),0),0x00,(int(args[1],16)&0x0000FF00)>>8,int(args[1],16)&0x000000FF]
+    else:
+     out+=[0x04,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0),0x00,0x00,0x00]
+   
+   if line[0] == "and" or line[0] == "band":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0:
+     out+=[0x05,combinetochar(reg(args[0]),0),combinetochar(reg(args[2]),0),0x00,(int(args[1],16)&0x0000FF00)>>8,int(args[1],16)&0x000000FF]
+    else:
+     out+=[0x05,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0),0x00,0x00,0x00]
+   
+   if line[0] == "or" or line[0] == "bor":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0:
+     out+=[0x06,combinetochar(reg(args[0]),0),combinetochar(reg(args[2]),0),0x00,(int(args[1],16)&0x0000FF00)>>8,int(args[1],16)&0x000000FF]
+    else:
+     out+=[0x06,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0),0x00,0x00,0x00]
+   
+   if line[0] == "xor" or line[0] == "bxor":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0:
+     out+=[0x07,combinetochar(reg(args[0]),0),combinetochar(reg(args[2]),0),0x00,(int(args[1],16)&0x0000FF00)>>8,int(args[1],16)&0x000000FF]
+    else:
+     out+=[0x07,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0),0x00,0x00,0x00]
 
-  save_bytecode(res,fnameout)
+   if line[0] == "bsl":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[2]) > 0: print("ERROR at line "+str(i)+"[2]: Value for IMM is invalid (got \""+args[2]+"\")"); exit(-1)
+    out+=[0x08,combinetochar(reg(args[0]),0),combinetochar(reg(args[2]),0),0x00,(int(args[1],16)&0x0000FF00)>>8,int(args[1],16)&0x000000FF]
+   
+   if line[0] == "bsr":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[2]) > 0: print("ERROR at line "+str(i)+"[2]: Value for IMM is invalid (got \""+args[2]+"\")"); exit(-1)
+    out+=[0x09,combinetochar(reg(args[0]),0),combinetochar(reg(args[2]),0),0x00,(int(args[1],16)&0x0000FF00)>>8,int(args[1],16)&0x000000FF]
+   
+   if line[0] == "not" or line[0] == "bnot":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    out+=[0x0A,combinetochar(reg(args[0]),0),combinetochar(reg(args[0]),0),0x00,0x00,0x01]
+   
+   if line[0] == "split":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0: print("ERROR at line "+str(i)+"[1]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+    if reg(args[2]) < 0: print("ERROR at line "+str(i)+"[2]: REG value for B is invalid (got \""+args[2]+"\")"); exit(-1)
+    if reg(args[3]) > 0: print("ERROR at line "+str(i)+"[3]: Value for IMM is invalid (got \""+args[3]+"\")"); exit(-1)
+    out+=[0x0B,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0),0x00,0x00,int(args[3],16)]
+    
+   if line[0] == "combine":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0: print("ERROR at line "+str(i)+"[1]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+    if reg(args[2]) < 0: print("ERROR at line "+str(i)+"[2]: REG value for B is invalid (got \""+args[2]+"\")"); exit(-1)
+    if reg(args[3]) > 0: print("ERROR at line "+str(i)+"[3]: Value for IMM is invalid (got \""+args[3]+"\")"); exit(-1)
+    out+=[0x0C,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0),0x00,0x00,int(args[3],16)]
+    
+   if line[0] == "jmp":
+    if "[" in args[0]:
+     if "]" in args[0]:
+      k = False
+      for j in labels:
+       if args[0][1:-1] == j[0]: out+=[0x0D,0x00,combinetochar(1,(j[1]&0xF000000)>>24),(j[1]&0x0FF0000)>>16,(j[1]&0x000FF00)>> 8,j[1]&0x00000FF]; k = True; print(str(j)+" | "+hex(j[1])); print(args[0][1:-1]); break
+      if k == False: print("ERROR at line "+str(i)+"[0]: Label \""+args[0][1:-1]+"\" was not found or is invalid\n",labels); exit(-1)
+     else: print("ERROR at line "+str(i)+"[0]: Expected \"]\" near label"); exit(-1)
+    else:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A[Address] is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) < 0: print("ERROR at line "+str(i)+"[1]: REG value for B[Address] is invalid (got \""+args[1]+"\")"); exit(-1)
+     out+=[0x0D,combinetochar(reg(args[0]),reg(args[1])),0x00,0x00,0x00,0x00]
+   
+   if line[0] == "led":
+    out+=[0x0E,combinetochar(reg(args[0]),0),0x00,0x00,(reg(args[1])   &0x000FF00)>>8,reg(args[1])   &0x00000FF]
+    
+   if line[0] == "cmpeq":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0:
+     out+=[0x0F,combinetochar(reg(args[0]),0),0x10,0x00,(reg(args[1])   &0x000FF00)>>8,reg(args[1])   &0x00000FF]
+    else:
+     out+=[0x0F,combinetochar(reg(args[0]),reg(args[1])),0x00,0x00,0x00,0x00]
 
-if __name__ == '__main__':
-
-  if len(sys.argv) < 2:
-    print("please give an assembly file to compile")
-
-  elif len(sys.argv) < 3:
-    print("please give an output file")
-
-  else:
-    main(sys.argv)
+   if line[0] == "cmplt":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0:
+     out+=[0x10,combinetochar(reg(args[0]),0),0x10,0x00,(int(args[1],16)&0x000FF00)>>8,int(args[1],16)&0x00000FF]
+    else:
+     out+=[0x10,combinetochar(reg(args[0]),reg(args[1])),0x00,0x00,0x00,0x00]
+   
+   if line[0] == "cmpgt":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0:
+     out+=[0x11,combinetochar(reg(args[0]),0),0x10,0x00,(int(args[1],16)&0x000FF00)>>8,int(args[1],16)&0x00000FF]
+    else:
+     out+=[0x11,combinetochar(reg(args[0]),reg(args[1])),0x00,0x00,0x00,0x00]
+   
+   if line[0] == "rpos":
+    if reg(args[0]) < 0:
+     out+=[0x12,0x00,combinetochar(0x1,(args[0]&0xF000000)>>24),(args[0]&0x0FF0000)>>16,(args[0]&0x000FF00>>8),args[1]&0x00000FF]
+    else:
+     if reg(args[1]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+     out+=[0x12,combinetochar(reg(args[0]),reg(args[1])),0x00,0x00,0x00,0x00]
+   
+   if line[0] == "wram":
+    if len(args) == 2:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) >-1: print("ERROR at line "+str(i)+"[1]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+     out+=[0x13,combinetochar(reg(args[0]),1),combinetochar(0,(args[1]&0xF000000)>>24),(args[1]&0x0FF0000)>>16,(args[1]&0x000FF00)>>8,args[1]&0x00000FF]
+    elif len(args) == 1:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     out+=[0x13,combinetochar(reg(args[0]),0),0x00,0x00,0x00,0x00]
+    else:
+     print("ERROR at line "+str(i)+": the instruction \"WRAM\" requres 1 or 2 arguments, got "+str(len(args)))
+   
+   if line[0] == "rram":
+    if len(args) == 2:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) >-1: print("ERROR at line "+str(i)+"[1]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+     out+=[0x14,combinetochar(reg(args[0]),1),combinetochar(0,(args[1]&0xF000000)>>24),(args[1]&0x0FF0000)>>16,(args[1]&0x000FF00>>8),args[1]&0x00000FF]
+    elif len(args) == 1:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     out+=[0x14,combinetochar(reg(args[0]),0),0x00,0x00,0x00,0x00]
+    else:
+     print("ERROR at line "+str(i)+": the instruction \"RRAM\" requres 1 or 2 arguments, got "+str(len(args)))
+   
+   if line[0] == "wvram":
+    if len(args) == 2:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) >-1: print("ERROR at line "+str(i)+"[1]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+     out+=[0x13,combinetochar(reg(args[0]),1),combinetochar(1,(args[1]&0xF000000)>>24),(args[1]&0x0FF0000)>>16,(args[1]&0x000FF00)>>8,args[1]&0x00000FF]
+    elif len(args) == 1:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     out+=[0x13,combinetochar(reg(args[0]),0),0x10,0x00,0x00,0x00]
+    else:
+     print("ERROR at line "+str(i)+": the instruction \"WVRAM\" requres 1 or 2 arguments, got "+str(len(args)))
+   
+   if line[0] == "rvram":
+    if len(args) == 2:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) >-1: print("ERROR at line "+str(i)+"[1]: Value for IMM is invalid (got \""+args[1]+"\")"); exit(-1)
+     out+=[0x14,combinetochar(reg(args[0]),1),combinetochar(1,(args[1]&0xF000000)>>24),(args[1]&0x0FF0000)>>16,(args[1]&0x000FF00)>>8,args[1]&0x00000FF]
+    elif len(args) == 1:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     out+=[0x14,combinetochar(reg(args[0]),0),0x10,0x00,0x00,0x00]
+    else:
+     print("ERROR at line "+str(i)+": the instruction \"RVRAM\" requres 1 or 2 arguments, got "+str(len(args)))
+   
+   if line[0] == "rsav":
+    if len(args) == 3:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) < 0: print("ERROR at line "+str(i)+"[1]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+     if reg(args[2]) < 0: print("ERROR at line "+str(i)+"[2]: REG value for C is invalid (got \""+args[2]+"\")"); exit(-1)
+     out+=[0x15,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0x0),0x00,0x00,0x00]
+    elif len(args) == 2:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) >-1: print("ERROR at line "+str(i)+"[1]: Value for IMM is invalid (got \""+args[1]+"\")"); exit(-1)
+     out+=[0x16,combinetochar(reg(args[0]),1),combinetochar(1,(args[1]&0xF000000)>>24),(args[1]&0x0FF0000)>>16,(args[1]&0x000FF00)>>8,args[1]&0x00000FF]
+    else:
+     print("ERROR at line "+str(i)+": the instruction \"RSAV\" requres 2 or 3 arguments, got "+str(len(args)))
+   
+   if line[0] == "wsav":
+    if len(args) == 3:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) < 0: print("ERROR at line "+str(i)+"[1]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+     if reg(args[2]) < 0: print("ERROR at line "+str(i)+"[2]: REG value for C is invalid (got \""+args[2]+"\")"); exit(-1)
+     out+=[0x17,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0x0),0x00,0x00,0x00]
+    elif len(args) == 2:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) >-1: print("ERROR at line "+str(i)+"[1]: Value for IMM is invalid (got \""+args[1]+"\")"); exit(-1)
+     out+=[0x18,combinetochar(reg(args[0]),1),combinetochar(1,(args[1]&0xF000000)>>24),(args[1]&0x0FF0000)>>16,(args[1]&0x000FF00)>>8,args[1]&0x00000FF]
+    else:
+     print("ERROR at line "+str(i)+": the instruction \"RSAV\" requres 2 or 3 arguments, got "+str(len(args)))
+   
+   if line[0] == "rrom":
+    if len(args) == 3:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) < 0: print("ERROR at line "+str(i)+"[1]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+     if reg(args[2]) < 0: print("ERROR at line "+str(i)+"[2]: REG value for C is invalid (got \""+args[2]+"\")"); exit(-1)
+     out+=[0x19,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0x0),0x00,0x00,0x00]
+    elif len(args) == 2:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) >-1: print("ERROR at line "+str(i)+"[1]: Value for IMM is invalid (got \""+args[1]+"\")"); exit(-1)
+     args[1] = int(args[1],16)
+     out+=[0x1A,combinetochar(reg(args[0]),0),combinetochar(0,(args[1]&0xF000000)>>24),args[1]&(0x0FF0000)>>16,(args[1]&0x000FF00)>>8,args[1]&0x00000FF]
+    else:
+     print("ERROR at line "+str(i)+": the instruction \"RROM\" requres 2 or 3 arguments, got "+str(len(args)))
+   
+   if line[0] == "hlt":
+    if len(args) > 0:
+     if reg(args[0]) >-1: print("ERROR at line "+str(i)+"[0]: Value for IMM is invalid (got \""+args[0]+"\")"); exit(-1)
+     out+=[0x1B,0x00,0x00,0x00,0x00,combinetochar(0x0,reg(args[0]))]
+    else:
+     out+=[0x1B,0x00,0x00,0x00,0x00,0x01]
+   
+   if line[0] == "disp":
+    if len(args) == 1:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     out+=[0x1C,combinetochar(reg(args[0]),0),0x00,0x00,0x00,0x00]
+    elif len(args) == 2:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) < 0: print("ERROR at line "+str(i)+"[1]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+     out+=[0x1C,combinetochar(reg(args[0]),reg(args[1])),0x00,0x00,0x00,0x00]
+    elif len(args) == 3:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) < 0: print("ERROR at line "+str(i)+"[1]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+     if reg(args[2]) < 0: print("ERROR at line "+str(i)+"[2]: REG value for C is invalid (got \""+args[2]+"\")"); exit(-1)
+     out+=[0x1C,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0x0),0x00,0x00,0x02]
+    else:
+     print("ERROR at line "+str(i)+": the instruction \"DISP\" requres 1 to 3 arguments, got "+str(len(args)))
+   
+   if line[0] == "flags":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) >-1: print("ERROR at line "+str(i)+"[1]: Value for IMM is invalid (got \""+args[0]+"\")"); exit(-1)
+    out+=[0x1D,0x00,0x00,0x00,0x00,combinetochar(0x0,reg(args[0]))]
+   
+   if line[0] == "dsend":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) >-1: print("ERROR at line "+str(i)+"[1]: Value for IMM is invalid (got \""  +args[1]+"\")"); exit(-1)
+    if reg(args[2]) >-1: print("ERROR at line "+str(i)+"[2]: Value for IMM is invalid (got \""  +args[2]+"\")"); exit(-1)
+    if args[1] == "GPU":     tmp = 0x00
+    if args[1] == "INPUT":   tmp = 0x01
+    if args[1] == "SOUND":   tmp = 0x02
+    if args[1] == "NETWORK": tmp = 0x03
+    else:                    tmp = combinetochar(0x0,int(args[1],16))
+    out+=[0x1E,combinetochar(reg(args[0]),0),0x00,0x00,tmp,int(args[2],16)%0x100]
+   
+   if line[0] == "drecv":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) >-1: print("ERROR at line "+str(i)+"[1]: Value for IMM is invalid (got \""  +args[1]+"\")"); exit(-1)
+    if reg(args[2]) >-1: print("ERROR at line "+str(i)+"[2]: Value for IMM is invalid (got \""  +args[2]+"\")"); exit(-1)
+    if args[1] == "GPU":     tmp = 0x00
+    if args[1] == "INPUT":   tmp = 0x01
+    if args[1] == "SOUND":   tmp = 0x02
+    if args[1] == "NETWORK": tmp = 0x03
+    else:                    tmp = combinetochar(0x0,int(args[1],16))
+    out+=[0x1F,combinetochar(reg(args[0]),0),0x00,0x00,tmp,int(args[2],16)%0x100]
+   
+   if line[0] == "icout":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) < 0: print("ERROR at line "+str(i)+"[1]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+    out+=[0x20,0x00,0x00,0x00,0x00,combinetochar(0x0,reg(args[0]))]
+   
+   if line[0] == "exec":
+    if reg(args[0]) >-1: print("ERROR at line "+str(i)+"[0]: Execute Index for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    if reg(args[1]) >-1: print("ERROR at line "+str(i)+"[1]: Value for IMM is invalid (got \""      +args[1]+"\")"); exit(-1)
+    if args[0] == "BIOS": tmp = 0x0
+    if args[0] == "ROM":  tmp = 0x1
+    if args[0] == "RAM":  tmp = 0x2
+    else:                 tmp = int(args[0],16)
+    args[1] = int(args[1],16)
+    out+=[0x22,combinetochar(tmp,0),combinetochar(0,(args[1]&0xF000000)>>24),(args[1]&0x0FF0000)>>16,(args[1]&0x000FF00)>>8,args[1]&0x00000FF]
+   
+   if line[0] == "rbios":
+    if len(args) == 3:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) < 0: print("ERROR at line "+str(i)+"[1]: REG value for B is invalid (got \""+args[1]+"\")"); exit(-1)
+     if reg(args[2]) < 0: print("ERROR at line "+str(i)+"[2]: REG value for C is invalid (got \""+args[2]+"\")"); exit(-1)
+     out+=[0x23,combinetochar(reg(args[0]),reg(args[1])),combinetochar(reg(args[2]),0x0),0x00,0x00,0x00]
+    elif len(args) == 2:
+     if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+     if reg(args[1]) >-1: print("ERROR at line "+str(i)+"[1]: Value for IMM is invalid (got \""+args[1]+"\")"); exit(-1)
+     out+=[0x24,combinetochar(reg(args[0]),0),combinetochar(0,(args[1]&0xF000000)>>24),(args[1]&0x0FF0000)>>16,(args[1]&0x000FF00)>>8,args[1]&0x00000FF]
+    else:
+     print("ERROR at line "+str(i)+": the instruction \"RBIOS\" requres 2 or 3 arguments, got "+str(len(args)))
+   
+   if line[0] == "push":
+    if reg(args[0]) >-1: out+=[0x26,combinetochar(reg(args[0]),0x00),0x00,0x00,0x00,0x00]
+    else:                out+=[0x26,0x01,combinetochar(0,(args[1]&0xF000000)>>24),(args[1]&0x0FF0000)>>16,(args[1]&0x000FF00)>>8,args[1]&0x00000FF]
+   
+   if line[0] == "pop":
+    if reg(args[0]) < 0: print("ERROR at line "+str(i)+"[0]: REG value for A is invalid (got \""+args[0]+"\")"); exit(-1)
+    out+=[0x25,combinetochar(reg(args[0]),0x0),0x00,0x00,0x00,0x00]
+   
+   if line[0] == "call":
+    if len(args) == 1:
+     if "[" in args[0]:
+      if "]" in args[0]:
+       k = False
+       for j in labels:
+        if args[0][1:-1] == j[0]: out+=[0x27,0x00,combinetochar(0,(j[1]&0xF000000)>>24),(j[1]&0x0FF0000)>>16,(j[1]&0x000FF00)>>8,j[1]&0x00000FF]; k = True; print(j); print(args[0][1:-1]); break
+       if k == False: print("ERROR at line "+str(i)+"[0]: Label \""+args[0][1:-1]+"\" was not found or is invalid\n",labels); exit(-1)
+      else: print("ERROR at line "+str(i)+"[0]: Expected \"]\" near label"); exit(-1)
+     else:
+      print("ERROR at line "+str(i)+"[0]: Expected [label] (got \""+args[2]+"\")"); exit(-1)
+    elif len(args) == 2:
+     out+=[0x27,combinetochar(reg(args[0]),reg(args[1])),0x10,0x00,0x00,0x00]
+    else:
+      print("ERROR at line "+str(i)+": the instruction \"CALL\" requres 1 or 2 arguments, got "+str(len(args)))
+   
+   if line[0] == "ret":
+    out+=[0x28,0x00,0x00,0x00,0x00,0x00]
+   
+   if line[0] == "swap":
+    out+=[0x29,0x00,0x00,0x00,0x00,0x00]
+   
+   if line[0] == "gclk":
+    if reg(args[0]) >-1:     out+=[0x2A,combinetochar(reg(args[0]),0x0),0x10,0x00,0x00,0x00]
+    elif args[0] == "reset": out+=[0x2A,0x01,0x10,0x00,0x00,0x00]
+   
+   if line[0] == "wait":
+    out+=[0x2B,0x00,combinetochar(0x0,(args[1]&0xF000000)>>24),(args[1]&0x0FF0000)>>16,(args[1]&0x000FF00)>>8,args[1]&0x00000FF]
+    
+   
+   if line[0] == "nop":
+    out+=[0xff,0x00,0x00,0x00,0x00,0x00]
+    print("What? you want me to do something? NOPe sorry, not today!")
+   address+=6
+  for o in range(len(out)):
+   if out[o] < 0: print(o,[out[o] for o in range(o-6,o)]); #exit(-1)
+  print("[",end='')
+  for i in out[-6:]:
+   if i < 0x10: print("0x0"+hex(i)[2:],end=", ")
+   else:        print("0x" +hex(i)[2:],end=", ")
+  print("]")
+  for i in range(len(out)):
+   if out[i] < 0 or out[i] > 0xFF: input()
+  #
+ #
+ print("----------------------------------------------------\ntest2: complete\nlabels:"+str(labels)+"\nout:"+str(out))
+ dumpData("out", out, False, 0, len(out))
+ for i in range(len(out)):
+  if out[i] < 0 or out[i] > 0xFF: print(i,[out[i] for i in range(i-6,i+7)]); exit(-1)
+with open(FNout,"wb") as ofile:
+ ofile.write(bytes(out))
+ ofile.flush()
+ ofile.close()
 ##################################################################################################################

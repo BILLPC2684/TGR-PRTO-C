@@ -33,6 +33,7 @@ bool   Title_lock;
 double RAMUsage;
 double VRAMUsage;
 bool   p;
+char   extSAV;
  
 //   System_Error(       0, CPU.IS[], CPU.IP,     -1,     "CPU"); //CPU
 //   System_Error(       0, CPU.IS[], CPU.IP,      0,     "GPU"); //GPU Component

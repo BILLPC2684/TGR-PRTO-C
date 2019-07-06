@@ -1,0 +1,14 @@
+int16 a = 0x0000
+int16 b = 0x0001
+while true
+ a = a + b
+ display a
+ if a > 0x0FFF then
+  break
+ end
+ b = a + b
+ display b
+ if b > 0x0FFF then
+  break
+ end
+end

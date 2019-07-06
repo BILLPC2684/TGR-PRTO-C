@@ -14,6 +14,7 @@
 #include <pthread.h>
 //network libarys
 #ifdef _WIN32
+ #define sysOS 0 //windows
  /* See http://stackoverflow.com/questions/12765743/getaddrinfo-on-win32 */
  #ifndef _WIN32_WINNT
   #define _WIN32_WINNT 0x0501  /* Windows XP. */
@@ -22,6 +23,7 @@
  #include <Ws2tcpip.h>
 #else
  /* Assume that any non-Windows platform uses POSIX-style sockets instead. */
+ #define sysOS 1 //unix
  #include <sys/socket.h>
  #include <arpa/inet.h>
  #include <netdb.h>  /* Needed for getaddrinfo() and freeaddrinfo() */

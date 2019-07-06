@@ -1,19 +1,18 @@
-//###########################//
-//###########################//
-//#      THE GAME RAZER     #//
-//#     MAIN SYSTEM FILE    #//
-//#     **DO NOT EDIT**     #//
-//###########################//
-//###########################//
-//###########################//
+//#############################//
+//#############################//
+//#       THE GAME RAZER      #//
+//#      MAIN SYSTEM FILE     #//
+//#      **DO NOT EDIT**      #//
+//#############################//
+//#############################//
+//#############################//
 
-//
 #include <TGR.h>
 static void System_Error( int Err, int Inst, int IP, int ID, char Name[]);
 
 bool     showInfo = false;
 int      slowdown = 0;
-int      FPSLimmit = 10000000;
+int      FPSLimmit = 1000;
 int      delay = 0;
 int      delay_skip = 62;
 int      frames = 0;
@@ -30,6 +29,7 @@ char     chars[95];
 char*    font[95][8];
 bool     ShowFPS;
 bool     crash;
+uint8_t  status[SW][SH][4] = {{{0}}};
 uint8_t  overlay[SW][SH][4] = {{{0}}};
 uint8_t  screen[SW][SH][3] = {{{0}}};
 bool     enableOL = true;
@@ -39,13 +39,29 @@ char     Message[255] = "";
 bool     p = false;
 bool     HUDinfo = false;
 bool     ShowInput = false;
+bool     Fullscreen = false;
+int      zoom = 0;
+uint8_t  LED[3] = {0};
+int      dtmp = 0;
+
+//ZOOM INFO
+//0 - normal
+//1 - 2x
+//2 - scanlines (2x)
+//3 - pixelated (2x)
+//4 - 3x
+//5 - scanlines (3x)
+//6 - pixelated (3x)
+
+//int      info_scr[SW*2];
 CPU_INIT CPU;
+SDL_DisplayMode display;
 
 int main(int c, char *v[]) {
  char TN[1024] = "TheGameRazer - [NO ROM]"; for (int i=0;i<23;i++) { Title_Name[i] = TN[i]; } Title_lock = false;
  argc = c; for (int i=0; i<argc; i++) { argv[i] = v[i]; }  //printf(">>ARG[%d]: %s\n",i,argv[i]);
  
- printf("Loading TGR-PRTO v0.0.34 Alpha Build...\n");
+ printf("Loading TGR-PRTO v0.0.37c Alpha Build...\n");
  
  SDL_Init(SDL_INIT_VIDEO);
  SDL_CreateWindowAndRenderer(SW, SH, 2, &window, &GPU_SCREEN);
@@ -154,7 +170,7 @@ if (ShowFPS == true) {
      printf("[EMU] enableOL: true\n");
     } SDL_Delay(100);
    }
-   if (keystates[SDL_SCANCODE_LCTRL] && keystates[SDL_SCANCODE_D]) {
+   if ((keystates[SDL_SCANCODE_LCTRL] || keystates[SDL_SCANCODE_RCTRL]) && keystates[SDL_SCANCODE_D]) {
     if (CPU.debug == true) {
      CPU.debug = false;
      printf("[EMU] CPU.debug: False\n");
@@ -162,8 +178,8 @@ if (ShowFPS == true) {
      CPU.debug = true;
      printf("[EMU] CPU.debug: True\n");
     } SDL_Delay(100);
-   }
-   if (keystates[SDL_SCANCODE_LCTRL] && keystates[SDL_SCANCODE_I]) {
+   }
+   if ((keystates[SDL_SCANCODE_LCTRL] || keystates[SDL_SCANCODE_RCTRL]) && keystates[SDL_SCANCODE_I]) {
     if (HUDinfo == true) {
      HUDinfo = false;
      printf("EMU: [HUD Info: False]\n");
@@ -177,7 +193,7 @@ if (ShowFPS == true) {
      printf("EMU: [HUD Info: True]\n");
     } SDL_Delay(100);
    }
-   if (keystates[SDL_SCANCODE_LCTRL] && keystates[SDL_SCANCODE_C]) {
+   if ((keystates[SDL_SCANCODE_LCTRL] || keystates[SDL_SCANCODE_RCTRL]) && keystates[SDL_SCANCODE_C]) {
     if (ShowInput == true) {
      ShowInput = false;
      printf("[EMU] Show Controller Input: False\n");
@@ -188,7 +204,34 @@ if (ShowFPS == true) {
      printf("[EMU] Show Controller Input: True\n");
     } SDL_Delay(100);
    }
-   if (keystates[SDL_SCANCODE_LCTRL] && keystates[SDL_SCANCODE_R]) {
+   if ((keystates[SDL_SCANCODE_LCTRL] || keystates[SDL_SCANCODE_RCTRL]) && keystates[SDL_SCANCODE_O]) {
+    dropped_filedir = openGUI(0);
+    CPU.running = false;
+    printf("EMU Notice: Switching ROM to: %s\n",dropped_filedir);
+    char TN[1024] = "TheGameRazer - [NO ROM]"; for (int i=0;i<23;i++) { Title_Name[i] = TN[i]; } Title_lock = false;
+    getChar("```````````````````````````````", SW/2-15*8, SH/2-4,   0,  0,  0,false,true);
+    getChar("```````````````````````````````", SW/2-15*8, SH/2+4,   0,  0,  0,false,true);
+    p = true;
+    GPU_reset();
+    CPU.IP = 0;
+    CPU.TI = 0;
+    CPU.IPC = 0;
+    CPU.SP = NULL;
+    CPU.BP = NULL;
+    FPS = 0;
+    for (int i=0;i<8;i++) { CPU.REGs[i] = 0; }
+    CPU.IPC = 12000000; //### THIS IS HERE TO FIX A PROBBLEM WITH THE TOTALRAN COUNT ###
+    CPU.reset = false;
+    printf("--------[[EMU-HARD-RESTART]]--------\n");
+    GPU_reset();
+    CPU.running = true;
+    pthread_create(&call_CPU, NULL, CPU_EXEC, NULL);
+    MsgTimer = 1000;
+    memset(Message,0,strlen(Message));
+    strcat(Message,"LOADED ROM: ");
+    strcat(Message,dropped_filedir);
+   }
+   if ((keystates[SDL_SCANCODE_LCTRL] || keystates[SDL_SCANCODE_RCTRL]) && keystates[SDL_SCANCODE_R]) {
     char TN[1024] = "TheGameRazer - [NO ROM]"; for (int i=0;i<23;i++) { Title_Name[i] = TN[i]; } Title_lock = false;
     getChar("```````````````````````````````", SW/2-15*8, SH/2-4,   0,  0,  0,false,true);
     getChar("```````````````````````````````", SW/2-15*8, SH/2+4,   0,  0,  0,false,true);
@@ -200,7 +243,7 @@ if (ShowFPS == true) {
     for (int i=0;i<8;i++) { CPU.REGs[i] = 0; }
     CPU.IPC = 12000000; //### THIS IS HERE TO FIX A PROBBLEM WITH THE TOTALRAN COUNT ###
     CPU.reset = false;
-    if (keystates[SDL_SCANCODE_LSHIFT] || CPU.running == false) {
+    if ((keystates[SDL_SCANCODE_LSHIFT] || keystates[SDL_SCANCODE_RSHIFT]) || CPU.running == false) {
      CPU.running = false;
      printf("--------[[EMU-HARD-RESTART]]--------\n");
      GPU_reset();
@@ -211,7 +254,7 @@ if (ShowFPS == true) {
      CPU.reset = true;
     } SDL_Delay(100);
    }
-   if (keystates[SDL_SCANCODE_LCTRL] && keystates[SDL_SCANCODE_Q]) { crash = false; Exit = true; }
+   if ((keystates[SDL_SCANCODE_LCTRL] || keystates[SDL_SCANCODE_RCTRL]) && keystates[SDL_SCANCODE_Q]) { crash = false; Exit = true; }
    switch(event.type) {
 //    case SDL_KEYDOWN:
 //     printf("Oh! Key press: %d\n",event.type);
@@ -263,7 +306,6 @@ if (ShowFPS == true) {
      getChar(Message, 2*8, 2*8, 128, 255, 128, true,true);
     } MsgTimer--;
    }
-   if (FPS > 0) { SDL_Delay(FPS/12000000); }
    getChar("``````````````````````````````````````````````````````````",  2*8, SH-(4*8),   0,   0,   0, false, false);
    getChar("``````````````````````````````````````````````````````````",  1*8, SH-(6*8),   0,   0,   0, false, false);
    getChar("``````````````````````````````````````````````````````````",  1*8, SH-(5*8),   0,   0,   0, false, false);
@@ -271,7 +313,7 @@ if (ShowFPS == true) {
     char TFPS[255]; snprintf(TFPS,128,"FPS: %d",FPS);
     getChar(TFPS,          2*8, SH-(4*8), 255, 128, 128,  true,  true);
    } else {
-    char TFPS[255]; snprintf(TFPS,128,"FPS: %d | IPS: %d(%.2lf%%) | TotalRan: %d",FPS,IPS,RunQuality,TIPS);
+    char TFPS[255]; snprintf(TFPS,128,"FPS: %d | IPS: %d(%.2lf%%) | TotalRan: %d",FPS,IPS/8,RunQuality,TIPS);
     getChar(TFPS,          2*8, SH-(4*8), 255, 128, 128,  true,  true);
        
     //                " RAM Usage: 134217727 bytes/134217727 (100.00% full) | VRAM Usage: 67108863 bytes/67108863 (100.00% full)"
@@ -461,3 +503,49 @@ char *font[95][8] = {
  {"01000010","01000010","00100100","00011000","00011000","00011000","00011000","00000000"},// Y 93
  {"01111110","00000100","00001000","00010000","00100000","01000000","01111110","00000000"},// Z 94
 };
+
+char *openGUI(int type) {
+ //0: Load ROM
+ //1: Load SaveState as ..
+ //2: Save SaveState as ..
+ //3: export V/RAM dump as HEX in ASCII(will cause lag)
+ char cmd[128];
+ if        (type == 0) {
+  if        (sysOS == 0) { //Windows
+   strcpy(cmd, ".\\bin\\winOpen.bat ROM");
+  } else if (sysOS == 1) { //Linux
+   strcpy(cmd, "zenity --file-selection --file-filter=\"GameRazerROM(*.tgr)|*.tgr\" --title=\"\"");
+  } else {
+   return "error";
+  }
+ } else if (type == 1) {
+  if        (sysOS == 0) { //Windows
+   strcpy(cmd, ".\\bin\\winOpen.bat LTGRS");
+  } else if (sysOS == 1) { //Linux
+   strcpy(cmd, "zenity --file-selection --file-filter=\"GameRazerState(*.tgrs)|*.tgrs\" --title=\"Load TGRState\"");
+  } else {
+   return "error";
+  }
+ } else if (type == 2) {
+  if        (sysOS == 0) { //Windows
+   strcpy(cmd, ".\\bin\\winSave.bat STGRS");
+  } else if (sysOS == 1) { //Linux
+   strcpy(cmd, "zenity --file-selection --save --file-filter=\"GameRazerState(*.tgrs)|*.tgrs\" --title=\"Save TGRState\"");
+  } else {
+   return "error";
+  }
+ } else if (type == 3) {
+  if        (sysOS == 0) { //Windows
+   strcpy(cmd, ".\\bin\\winSave.bat V-RAM");
+  } else if (sysOS == 1) { //Linux
+   strcpy(cmd, "zenity --file-selection --save --file-filter=\"Text file(*.txt)|*.txt\" --title=\"Export V/RAM\"");
+  } else {
+   return "error";
+  }
+ } //"error" -> "EMU Error: Uknown OS Detected"
+ char *file = malloc(1024 * sizeof(char)); free(file);
+ FILE *f = popen(cmd, "r");
+ fgets(file, 1024, f);
+ strtok(file, "\n");
+ return file;
+}

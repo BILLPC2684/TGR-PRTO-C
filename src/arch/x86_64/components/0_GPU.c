@@ -55,7 +55,7 @@ void GPU_send(int inst, int arg) {
   case 0x06:// |   plot     |  +  |
    if (GPU_x < SW && GPU_y < SW) {
     larg = arg%0x20;
-    if (arg > 0xF) {
+    if (larg > 0xF) {
      if (CPU.debug == true) { printf("GPU: Plotting pixel at [X:0x%x\t,Y:0x%x\t] as GPU.REGs (R:0x%x\t,G:0x%x\t,B:0x%x\t)\n", GPU_x, GPU_y, GPU_r, GPU_g, GPU_b); }
      buffer[GPU_x][GPU_y][0] = GPU_r;
      buffer[GPU_x][GPU_y][1] = GPU_g;
@@ -72,6 +72,7 @@ void GPU_send(int inst, int arg) {
     if (CPU.debug == true) { printf("GPU NOTTICE: skipping pixel at [X:0x%x\t,Y:0x%x\t] due to being OutOfBounds...\n", GPU_x, GPU_y); }
    }
    if (forceRender == true) { GPU.run  = true; }
+   if (delayRender == true) { printf("/**press enter**\n"); getchar(); }
    break;
   case 0x07:// |   update   |  -  |
    GPU.run  = true;
@@ -91,6 +92,9 @@ int  GPU_recv(int inst) {
   case 0x01:// |  GET H     |  +  |
    if (CPU.debug == true) { printf("GPU: Returning Screen Hight"); }
    return SH-1;
+   break;
+  case 0x02:// |  GET FPS   |  +  |
+   return frames;
    break;
   case 0x03:// |  GET GPU.R |  +  |
    return buffer[GPU_x][GPU_y][0];
