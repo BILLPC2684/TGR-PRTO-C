@@ -89,75 +89,55 @@ The assembly code can contain any of the following instructions:
 
  - labels: (any word with a : after it, just like nasm assembly)
 
- - raw     <0xOO,0xAB,0xCI,0xII,0xII,0xII> (O: Instruction[8-bit] | A/B/C: 3 REGS[12-bit] | I: Intermediate[24-bit])
- - mov     <destination(reg)> <source(reg or int)> (mov 8-bit int)
- - lmov    <destinationA(reg)> <destinationB(reg)> <labelname> (mov 16-bit int)
- - add     <A(reg)> <B(reg or int)> <destination(reg)>
- - sub     <A(reg)> <B(reg or int)> <destination(reg)>
- - mul     <A(reg)> <B(reg or int)> <destination(reg)>
- - div     <A(reg)> <B(reg or int)> <destination(reg)>
- - inc     <destination(reg)>
- - dec     <destination(reg)>
- - and     <A(reg)> <B(reg or int)> <destination(reg)>
- - or      <A(reg)> <B(reg or int)> <destination(reg)>
- - xor     <A(reg)> <B(reg or int)> <destination(reg)>
- - bsl     <destination(reg)>
- - bsr     <destination(reg)>
- - not     <destination(reg)>
- - split   <A(reg)> <B(reg or int)> <destination(reg)>
- - combine <A(reg)> <B(reg or int)> <destination(reg)>
- - jmp     <labelname>
- - led     <0xRRGGBB>
- - cmpeq   
- - cmplt
- - cmpgt
- - rpos
- - wram
- - rram
- - wvram
- - rvram
- - rsav
- - wsav
- - rrom
- - hlt
- - disp
- - flags
- - dsend
- - drecv
- - icout
- - exec
- - rbios
- - push
- - pop
- - call
- - ret
- - swap
- - gclk
- - wait
- - nop]
+ - `raw`     <0xOO,0xAB,0xCI,0xII,0xII,0xII> (O: Instruction[8-bit] | A/B/C: 3 REGS[12-bit] | I: Intermediate[24-bit])
+ - `mov`     <destination(reg)> <source(reg or int)> (mov 8-bit int)
+ - `lmov`    <destinationA(reg)> <destinationB(reg)> <labelname> (mov 16-bit int)
+ - `add`     <A(reg)> <B(reg or int)> <destination(reg)>
+ - `sub`     <A(reg)> <B(reg or int)> <destination(reg)>
+ - `mul`     <A(reg)> <B(reg or int)> <destination(reg)>
+ - `div`     <A(reg)> <B(reg or int)> <destination(reg)>
+ - `inc`     <destination(reg)>
+ - `dec`     <destination(reg)>
+ - `and`     <A(reg)> <B(reg or int)> <destination(reg)>
+ - `or`      <A(reg)> <B(reg or int)> <destination(reg)>
+ - `xor`     <A(reg)> <B(reg or int)> <destination(reg)>
+ - `bsl`     <destination(reg)>
+ - `bsr`     <destination(reg)>
+ - `not`     <destination(reg)>
+ - `split`   <A(reg)> <B(reg or int)> <destination(reg)>
+ - `combine` <A(reg)> <B(reg or int)> <destination(reg)>
+ - `jmp`     <labelname>
+ - `led`     <0xRRGGBB>
+ - `cmpeq`   <A(reg)> <B(reg or int)>
+ - `cmplt`   <A(reg)> <B(reg or int)>
+ - `cmpgt`   <A(reg)> <B(reg or int)>
+ - `rpos`    <A(reg)> <B(reg)>
+ - `wram`    <A(reg or address)> <B(reg if A is used for address)>
+ - `rram`    <A(reg or address)> <B(reg if A is used for address)>
+ - `wvram`   <A(reg or address)> <B(reg if A is used for address)>
+ - `rvram`   <A(reg or address)> <B(reg if A is used for address)>
+ - `rsav`    <A(address)> <B(reg)>
+ - `wsav`    <A(address)> <B(reg)>
+ - `rrom`    <A(address)> <B(address)> <C(reg)>
+ - `hlt`     [<HALT_INFO>](https://billpc2684.github.io/TGR-PRTO-C/systemSpecs.html) click to see them
+ - `disp`    <A(reg)> <B(reg[optional])> <C(reg[optional])>
+ - `flags`   <A(reg)>
+ - `dsend`   <A(reg)> <deviceID> <instruction>
+ - `drecv`   <A(reg)> <deviceID> <instruction>
+ - `icout`   <A(reg)> <B(reg)>
+ - `exec`    [<EXEC_INFO>](https://billpc2684.github.io/TGR-PRTO-C/systemSpecs.html) click to see them
+ - `rbios`   <A(address)> <B(address)> <C(reg)>
+ - `push`    <A(reg or int)>
+ - `pop`     <A(reg or int)>
+ - `call`    <labelname>
+ - `ret`     takes no arguments
+ - `swap`    takes no arguments
+ - `gclk`    <A(reg)> <reset?>
+ - `wait`    <msDelay>
+ - `nop`     What? you expect me to take a argument? NOPe sorry, not today!
 
 
-
- - lmov  <destinationA(reg)> <destinationB(reg)> <source(reg or int)> (load/mov 16-bit int)
- - disp  <a(reg)>
- - cmpeq <a(reg)> <b(reg)> (skips next instruction if false)
- - cmpgt <a(reg)> <b(reg)> (skips next instruction if false)
- - cmplt <a(reg)> <b(reg)> (skips next instruction if false)
- - push  <a(reg or int)> (pushes data to top of the stack)
- - pop   <a(reg)> (pulls data from top of the stack)
- - swap  (swaps the top of the stack with the item below)
- - call  <labelname> (calls label as function)
- - ret   (returns from function)
- - nop   (litteraly does nothing)
- - dsend <source(reg)> <Device(4-bit int)> <Inst(8-bit int)>
- - drecv <source(reg)> <Device(4-bit int)> <Inst(8-bit int)>
- - wait  (debug mode only)
- - gclk  (info not finalized)
- - hlt   (stop the program!)
-
-
-
-# USE CALLFN IN STEAD OF CALL!
+# USE CALLFN IN STEAD OF CALL! (optional)
 
 In general, do not use the call instruction. Use the supplied macro in std.asm (included with %include assembly/std.asm) called CALLFN(). It will take care of saving and restoring all registers so they won't bestroyed by the called function.
 
