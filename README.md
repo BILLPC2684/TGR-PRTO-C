@@ -85,10 +85,8 @@ To compile programs for TGR, theres a python script is included named `compile_T
 It takes 2-3 arguments: the first is the input file and the second is the output file(the 3rd is not needed unless says it so).\
 Note: there might be slight probblems with it skiping some instructions that are in the code, we are trying to fix that...\
 \
-The assembly code can contain any of the following instructions:
-
+The assembly code can contain any of the following instructions: (alittle broken but up-to-date)
  - labels: (any word with a : after it, just like nasm assembly)
-
  - `raw`     <0xOO,0xAB,0xCI,0xII,0xII,0xII> (O: Instruction[8-bit] | A/B/C: 3 REGS[12-bit] | I: Intermediate[24-bit])
  - `mov`     <destination(reg)> <source(reg or int)> (mov 8-bit int)
  - `lmov`    <destinationA(reg)> <destinationB(reg)> <label name> (mov 16-bit int)
