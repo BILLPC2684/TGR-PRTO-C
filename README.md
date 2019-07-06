@@ -91,7 +91,7 @@ The assembly code can contain any of the following instructions:
 
  - `raw`     <0xOO,0xAB,0xCI,0xII,0xII,0xII> (O: Instruction[8-bit] | A/B/C: 3 REGS[12-bit] | I: Intermediate[24-bit])
  - `mov`     <destination(reg)> <source(reg or int)> (mov 8-bit int)
- - `lmov`    <destinationA(reg)> <destinationB(reg)> <labelname> (mov 16-bit int)
+ - `lmov`    <destinationA(reg)> <destinationB(reg)> <label name> (mov 16-bit int)
  - `add`     <A(reg)> <B(reg or int)> <destination(reg)>
  - `sub`     <A(reg)> <B(reg or int)> <destination(reg)>
  - `mul`     <A(reg)> <B(reg or int)> <destination(reg)>
@@ -105,8 +105,8 @@ The assembly code can contain any of the following instructions:
  - `bsr`     <destination(reg)>
  - `not`     <destination(reg)>
  - `split`   <A(reg)> <B(reg or int)> <destination(reg)>
- - `combine` <A(reg)> <B(reg or int)> <destination(reg)>
- - `jmp`     <labelname>
+ - `combine` <A(reg)> <B(reg or int)> <destination(reg)>\
+ - `jmp`     <label name>
  - `led`     <0xRRGGBB>
  - `cmpeq`   <A(reg)> <B(reg or int)>
  - `cmplt`   <A(reg)> <B(reg or int)>
@@ -129,11 +129,11 @@ The assembly code can contain any of the following instructions:
  - `rbios`   <A(address)> <B(address)> <C(reg)>
  - `push`    <A(reg or int)>
  - `pop`     <A(reg or int)>
- - `call`    <labelname>
- - `ret`     takes no arguments
+ - `call`    <label name>
+ - `ret`     takes no arguments\
  - `swap`    takes no arguments
  - `gclk`    <A(reg)> <reset?>
- - `wait`    <msDelay>
+ - `wait`    <MS Delay>
  - `nop`     What? you expect me to take a argument? NOPe sorry, not today!
 
 
