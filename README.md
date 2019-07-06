@@ -9,9 +9,9 @@ Official TGR Github: https://billpc2684.github.io/TGR-PRTO-C/ (WIP)\
 BILLPC2684's offical: http://billcraft.byethost33.com/TheGameRazer/
 
 # Is the current build runnable? (will update)
-## For Build: v0.0.34 Alpha
+## For Build: v0.0.37c Alpha
  - Runnable Build: `Yes`
- - Stable CPU EMU: `Yes`     (Not completed)
+ - Stable CPU EMU: `Yes?`    (Not completed)
  - Stable Memory:  `Yes`     (128 MB of RAM | 64 MB of VRAM)
  - Has Video:      `Yes`     (SDL | uses OpenGL)
  - Has Audio:      `No`      (Requesting help)
@@ -47,19 +47,29 @@ to run the emulator, run: `./build/TGR-$(arch) <ROM> <ARGS>`\
 
 # Emulator Arguments
 ARGs are not needed to run a ROM but can be useful for debuging...
- - `-d`         or `--debug`:       enabled `debug mode` for telling you whats going on
- - `-i`         or `--showInfo`:    prints the current `FramesPerSec`/`InstructionsPerSec` in the terminal every second.
- - `-pl`        or `--pauseLoad`:   waits for user to press enter after running the BIOS
- - `-s <ms>`    or `--slow <ms>`:   replace <ms> with the delay you want to have per instruction
- - `-wi`        or `--waitInput`:   requires `debug mode` to work, after every instruction it waits for you to continue
- - `-sk <inst>` or `--skip <inst>`: replace <inst> with the amount of instructions you want to skip
- - `-i`         or `--showInfo`:    shows basic info
- - `-nu`        or `--noUnicode`:   prints DataDump in ascii instead of unicode
- - `-np`        or `--noPrint`:     disables print instruction to terminal
- - `-di`        or `--devInfo`:     shows bref dev info...
- - `-fr`        or `--forceRender`: forces every frame to render
- - `-db`        or `--debugBIOS`:   does the same as `--waitInput` but for the BIOS
- - `-sb`        or `--skipBIOS`:    skips the BIOS from running(saves ROM debuging time)
+ - `-s <ms>`     or `--slow <ms>`:     replace <ms> with the delay you want to have per instruction
+ - `-d`          or `--debug`:         enabled `debug mode` for telling you whats going on
+ - `-pl`         or `--pauseLoad`:     waits for user to press enter after running the BIOS
+ - `-wi`         or `--waitInput`:     requires `debug mode` to work, after every instruction it waits for you to continue
+ - `-sk <inst>`  or `--skip <inst>`:   replace <inst> with the amount of instructions you want to skip
+ - `-i`          or `--info`:          prints the current `FramesPerSec`/`InstructionsPerSec` in the terminal every second.
+ - `-nu`         or `--noUnicode`:     prints DataDump in ascii instead of unicode
+ - `-np`         or `--noPrint`:       disables print instruction to terminal
+ - `-di`         or `--devInfo`:       shows bref dev info...
+ - `-fr`         or `--forceRender`:   forces every frame to render
+ - `-db`         or `--debugBIOS`:     does the same as `--waitInput` but for the BIOS
+ - `-sb`         or `--skipBIOS`:      skips the BIOS from running(saves ROM debuging time)
+ - `-nd`         or `--noDump`:        skips BIOS/ROM dump from the terminal
+ - `-hi`         or `--hudInfo`:       does the same as `--info` but for the HUD
+ - `-2x`         or `--render2x`:      renders at 2x the size
+ - `-sl`         or `--scanLines`:     renders at 2x with scanlines(50%) effect
+ - `-px`         or `--pixelate`:      renders at 2x with pixelate effect
+ - `-3x`         or `--render3x`:      renders at 3x the size
+ - `-sl3`        or `--scanLines3x`:   renders at 3x with scanlines(25%) effect
+ - `-sl35`       or `--scanLines3x5`:  renders at 3x with scanlines(75%) effect
+ - `-px3`        or `--pixelate3x`:    renders at 3x with pixelate effect
+ - `-si`         or `--showInput`:     shows inputs
+ - `-sav <file>` or `--extSAV <file>`: replace <file> with the .sav file you want to use
 
 # How to make ROMs and compiling assembly programs:
 check out out the WorkingInProgress offical github page: https://billpc2684.github.io/TGR-PRTO-C/ \
@@ -77,31 +87,75 @@ Note: there might be slight probblems with it skiping some instructions that are
 \
 The assembly code can contain any of the following instructions:
 
-- labels: (any word with a : after it, just like nasm assembly)
-- `jmp   [<LabelName>]`
-- `mov   <destination(reg)> <source(reg or int)> (load/mov 8-bit int)`
-- `disp  <a(reg)>`
-- `add   <a(reg)> <B(reg or int)> <c(reg)>`
-- `sub   <a(reg)> <B(reg or int)> <c(reg)>`
-- `mul   <a(reg)> <B(reg or int)> <c(reg)>`
-- `div   <a(reg)> <B(reg or int)> <c(reg)>`
-- `inc   <a(reg)>`
-- `dec   <a(reg)>`
-- `cmpeq <a(reg)> <b(reg or int)>` (skips next instruction if false)
-- `cmpgt <a(reg)> <b(reg or int)>` (skips next instruction if false)
-- `cmplt <a(reg)> <b(reg or int)>` (skips next instruction if false)
-- `push  <a(reg or int)>` (pushes data to top of the stack)
-- `pop   <a(reg)>` (pulls data from top of the stack)
-- `swap`  (swaps the top of the stack with the item below)
-- `call  [<LabelName>]` (calls label as function)
-- `ret`   (returns from function)
-- `nop`   (litteraly does nothing)
-- `dsend <source(reg)> <Device(4-bit int)> <Inst(8-bit int)>`
-- `drecv <source(reg)> <Device(4-bit int)> <Inst(8-bit int)>`
-- `wait`  (debug mode only)
-- `gclk  <a(reg)> <reset(optinional)>` (CPU clock outputs to a(reg) and reset is 2-bit)
-- `raw   <0xOO,0xAB,0xCI,0xII,0xII,0xII>` (O: Instruction[8-bit] | A/B/C: 3 REGS[12-bit] | I: Intermediate[24-bit])
-- `hlt`   (stop the program!)
+ - labels: (any word with a : after it, just like nasm assembly)
+
+ - raw     <0xOO,0xAB,0xCI,0xII,0xII,0xII> (O: Instruction[8-bit] | A/B/C: 3 REGS[12-bit] | I: Intermediate[24-bit])
+ - mov     <destination(reg)> <source(reg or int)> (mov 8-bit int)
+ - lmov    <destinationA(reg)> <destinationB(reg)> <labelname> (mov 16-bit int)
+ - add     <A(reg)> <B(reg or int)> <destination(reg)>
+ - sub     <A(reg)> <B(reg or int)> <destination(reg)>
+ - mul     <A(reg)> <B(reg or int)> <destination(reg)>
+ - div     <A(reg)> <B(reg or int)> <destination(reg)>
+ - inc     <destination(reg)>
+ - dec     <destination(reg)>
+ - and     <A(reg)> <B(reg or int)> <destination(reg)>
+ - or      <A(reg)> <B(reg or int)> <destination(reg)>
+ - xor     <A(reg)> <B(reg or int)> <destination(reg)>
+ - bsl     <destination(reg)>
+ - bsr     <destination(reg)>
+ - not     <destination(reg)>
+ - split   <A(reg)> <B(reg or int)> <destination(reg)>
+ - combine <A(reg)> <B(reg or int)> <destination(reg)>
+ - jmp     <labelname>
+ - led     <0xRRGGBB>
+ - cmpeq   
+ - cmplt
+ - cmpgt
+ - rpos
+ - wram
+ - rram
+ - wvram
+ - rvram
+ - rsav
+ - wsav
+ - rrom
+ - hlt
+ - disp
+ - flags
+ - dsend
+ - drecv
+ - icout
+ - exec
+ - rbios
+ - push
+ - pop
+ - call
+ - ret
+ - swap
+ - gclk
+ - wait
+ - nop]
+
+
+
+ - lmov  <destinationA(reg)> <destinationB(reg)> <source(reg or int)> (load/mov 16-bit int)
+ - disp  <a(reg)>
+ - cmpeq <a(reg)> <b(reg)> (skips next instruction if false)
+ - cmpgt <a(reg)> <b(reg)> (skips next instruction if false)
+ - cmplt <a(reg)> <b(reg)> (skips next instruction if false)
+ - push  <a(reg or int)> (pushes data to top of the stack)
+ - pop   <a(reg)> (pulls data from top of the stack)
+ - swap  (swaps the top of the stack with the item below)
+ - call  <labelname> (calls label as function)
+ - ret   (returns from function)
+ - nop   (litteraly does nothing)
+ - dsend <source(reg)> <Device(4-bit int)> <Inst(8-bit int)>
+ - drecv <source(reg)> <Device(4-bit int)> <Inst(8-bit int)>
+ - wait  (debug mode only)
+ - gclk  (info not finalized)
+ - hlt   (stop the program!)
+
+
 
 # USE CALLFN IN STEAD OF CALL!
 
