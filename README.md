@@ -10,15 +10,26 @@ BILLPC2684's offical: http://billcraft.byethost33.com/TheGameRazer/
 
 # Is the current build runnable? (will update)
 ## For Build: v0.0.37c Alpha
- - Runnable Build: `Yes`
- - Stable CPU EMU: `Yes?`    (Not completed)
- - Stable Memory:  `Yes`     (128 MB of RAM | 64 MB of VRAM)
- - Has Video:      `Yes`     (SDL | uses OpenGL)
- - Has Audio:      `No`      (Requesting help)
- - Has Inputs:     `Yes`     (SDL Window Input)
- - Has Network:    `No`      (Requesting help)
- - Saveable data:  `Yes`     (Fully functional)
+ - Runnable Build:  `Yes`
+ - Stable CPU EMU:  `Yes?`     (Still running tests | Not completed)
+ - Stable Memory:   `Yes`      (128 MB of RAM | 64 MB of VRAM)
+ - Has Video:       `Yes`      (SDL | uses OpenGL)
+ - Has Audio:       `No`       (Requesting help)
+ - Has Inputs:      `Yes`      (SDL Window Input)
+ - Has Network:     `No`       (Requesting help)
+ - Saveable data:   `Yes`      (Fully functional)
+ - Compiler Status: `Outdated` (Needs to be updated and has some bugs)
 ## NOTE: if the emulator crashes or glitch out, check your ROM before reporting(if someone else made the ROM then contact them)
+
+# What is the next expected build version to be updated?
+## that will be Build v0.0.42b at Sep/02/2019
+
+# Why does GitHub updates take so long?
+ - i myself(BILLPC2684) is mostly the only one working on this project so it's slow
+ - life issues and school blocking from getting work does
+ - i like to push the most stable build i can before making the next big update
+ - also i'm working on making python3 able to be compiled into TGR bytecode(the design is still being worked on)
+## please be patient... Updates will come ASAP on schedule(hopefully)
 
 # Are ROMs free?
 Yes for the most part, now ppl can charge or setup a donation system for their ROMs
