@@ -25,11 +25,11 @@ BILLPC2684's offical: http://billcraft.byethost33.com/TheGameRazer/
 ## that will be Build v0.0.42b at Sep/02/2019
 
 # Why does GitHub updates take so long?
- - i myself(BILLPC2684) is mostly the only one working on this project so it's slow
- - life issues and school blocking from getting work does
- - i like to push the most stable build i can before making the next big update
+ - i myself(BILLPC2684) is mostly the only one working on this project, so it's a slow process
+ - life issues and school blocking from getting work done(plus not to mention other projects)
+ - i like to push the most stable build that i can before making the next big update
  - also i'm working on making python3 able to be compiled into TGR bytecode(the design is still being worked on)
-## please be patient... Updates will come ASAP on schedule(hopefully)
+## PLEASE BE PATIENT... Updates will come ASAP on schedule(hopefully)
 
 # Are ROMs free?
 Yes for the most part, now ppl can charge or setup a donation system for their ROMs
@@ -93,62 +93,56 @@ Note: there might be slight probblems with it skiping some instructions that are
 \
 The assembly code can contain any of the following instructions: (alittle broken but up-to-date)
  - labels: (any word with a : after it, just like nasm assembly)
- - `raw`     <0xOO,0xAB,0xCI,0xII,0xII,0xII> (O: Instruction[8-bit] | A/B/C: 3 REGS[12-bit] | I: Intermediate[24-bit])
- - `mov`     <destination(reg)> <source(reg or int)> (mov 8-bit int)
- - `lmov`    <destinationA(reg)> <destinationB(reg)> <label name> (mov 16-bit int)
- - `add`     <A(reg)> <B(reg or int)> <destination(reg)>
- - `sub`     <A(reg)> <B(reg or int)> <destination(reg)>
- - `mul`     <A(reg)> <B(reg or int)> <destination(reg)>
- - `div`     <A(reg)> <B(reg or int)> <destination(reg)>
- - `inc`     <destination(reg)>
- - `dec`     <destination(reg)>
- - `and`     <A(reg)> <B(reg or int)> <destination(reg)>
- - `or`      <A(reg)> <B(reg or int)> <destination(reg)>
- - `xor`     <A(reg)> <B(reg or int)> <destination(reg)>
- - `bsl`     <destination(reg)>
- - `bsr`     <destination(reg)>
- - `not`     <destination(reg)>
- - `split`   <A(reg)> <B(reg or int)> <destination(reg)>
- - `combine` <A(reg)> <B(reg or int)> <destination(reg)>\
- - `jmp`     <label name>
- - `led`     <0xRRGGBB>
- - `cmpeq`   <A(reg)> <B(reg or int)>
- - `cmplt`   <A(reg)> <B(reg or int)>
- - `cmpgt`   <A(reg)> <B(reg or int)>
- - `rpos`    <A(reg)> <B(reg)>
- - `wram`    <A(reg or address)> <B(reg if A is used for address)>
- - `rram`    <A(reg or address)> <B(reg if A is used for address)>
- - `wvram`   <A(reg or address)> <B(reg if A is used for address)>
- - `rvram`   <A(reg or address)> <B(reg if A is used for address)>
- - `rsav`    <A(address)> <B(reg)>
- - `wsav`    <A(address)> <B(reg)>
- - `rrom`    <A(address)> <B(address)> <C(reg)>
- - `hlt`     [<HALT_INFO>](https://billpc2684.github.io/TGR-PRTO-C/systemSpecs.html) click to see them
- - `disp`    <A(reg)> <B(reg[optional])> <C(reg[optional])>
- - `flags`   <A(reg)>
- - `dsend`   <A(reg)> <deviceID> <instruction>
- - `drecv`   <A(reg)> <deviceID> <instruction>
- - `icout`   <A(reg)> <B(reg)>
- - `exec`    [<EXEC_INFO>](https://billpc2684.github.io/TGR-PRTO-C/systemSpecs.html) click to see them
- - `rbios`   <A(address)> <B(address)> <C(reg)>
- - `push`    <A(reg or int)>
- - `pop`     <A(reg or int)>
- - `call`    <label name>
- - `ret`     takes no arguments\
+ - `raw`     `<0xOO,0xAB,0xCI,0xII,0xII,0xII>` (O: Instruction[8-bit] | A/B/C: 3 REGS[12-bit] | I: Intermediate[24-bit])
+ - `mov`     `<destination(reg)> <source(reg or int)>` (mov 8-bit int)
+ - `lmov`    `<destinationA(reg)> <destinationB(reg)> <label name>` (mov 16-bit int)
+ - `add`     `<A(reg)> <B(reg or int)> <destination(reg)>`
+ - `sub`     `<A(reg)> <B(reg or int)> <destination(reg)>`
+ - `mul`     `<A(reg)> <B(reg or int)> <destination(reg)>`
+ - `div`     `<A(reg)> <B(reg or int)> <destination(reg)>`
+ - `inc`     `<destination(reg)>`
+ - `dec`     `<destination(reg)>`
+ - `and`     `<A(reg)> <B(reg or int)> <destination(reg)>`
+ - `or`      `<A(reg)> <B(reg or int)> <destination(reg)>`
+ - `xor`     `<A(reg)> <B(reg or int)> <destination(reg)>`
+ - `bsl`     `<destination(reg)>`
+ - `bsr`     `<destination(reg)>`
+ - `not`     `<destination(reg)>`
+ - `split`   `<A(reg)> <B(reg or int)> <destination(reg)>`
+ - `combine` `<A(reg)> <B(reg or int)> <destination(reg)>`
+ - `jmp`     `<label name>`
+ - `led`     `<0xRRGGBB>`
+ - `cmpeq`   `<A(reg)> <B(reg or int)>`
+ - `cmplt`   `<A(reg)> <B(reg or int)>`
+ - `cmpgt`   `<A(reg)> <B(reg or int)>`
+ - `rpos`    `<A(reg)> <B(reg)>`
+ - `wram`    `<A(reg or address)> <B(reg if A is used for address)>`
+ - `rram`    `<A(reg or address)> <B(reg if A is used for address)>`
+ - `wvram`   `<A(reg or address)> <B(reg if A is used for address)>`
+ - `rvram`   `<A(reg or address)> <B(reg if A is used for address)>`
+ - `rsav`    `<A(address)> <B(reg)>`
+ - `wsav`    `<A(address)> <B(reg)>`
+ - `rrom`    `<A(address)> <B(address)> <C(reg)>`
+ - `hlt`     [`<HALT_INFO>`](https://billpc2684.github.io/TGR-PRTO-C/systemSpecs.html) click to see them
+ - `disp`    `<A(reg)> <B(reg[optional])> <C(reg[optional])>`
+ - `flags`   `<A(reg)>`
+ - `dsend`   `<A(reg)> <deviceID> <instruction>`
+ - `drecv`   `<A(reg)> <deviceID> <instruction>`
+ - `icout`   `<A(reg)> <B(reg)>`
+ - `exec`    [`<EXEC_INFO>`](https://billpc2684.github.io/TGR-PRTO-C/systemSpecs.html) click to see them
+ - `rbios`   `<A(address)> <B(address)> <C(reg)>`
+ - `push`    `<A(reg or int)>`
+ - `pop`     `<A(reg or int)>`
+ - `call`    `<label name>`
+ - `ret`     takes no arguments
  - `swap`    takes no arguments
- - `gclk`    <A(reg)> <reset?>
- - `wait`    <MS Delay>
+ - `gclk`    `<A(reg)> <reset?>`
+ - `wait`    `<MS Delay>`
  - `nop`     What? you expect me to take a argument? NOPe sorry, not today!
 
-
-# USE CALLFN IN STEAD OF CALL! (optional)
-
-In general, do not use the call instruction. Use the supplied macro in std.asm (included with %include assembly/std.asm) called CALLFN(). It will take care of saving and restoring all registers so they won't bestroyed by the called function.
-
-When making a function one should follow the following protocol:
-
+## When making a function should follow the following protocol concept: (optional)
 ```assembly
-functionname:
+function_name:
 	pop g ;save the return adress in an unused register (g in this case)
 
 	<some code not using the g register here>
@@ -157,35 +151,5 @@ functionname:
 
 	push g ;push g to the top of the stack so ret knows where to return to
 	ret
+call [function_name]
 ```
-
-a typical function call routine:
-```assembly
-CALLFN(square,5)
-mov a,h ;move out of h just to be sure, h is often used for return values so you never know what will overwrite it
-
-p a
-hlt
-
-mult:
-	pop g
-
-	pop a
-	pop b
-
-	mov c,0
-	mov d,0
-
-	multloop0:
-		cmpeq d,b
-		jmp [multend0]
-		add c,a,c
-		dec b
-		jmp [multloop0]
-multend0:
-	push g
-
-	mov h,c
-	ret
-```
-
