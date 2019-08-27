@@ -35,34 +35,29 @@ BILLPC2684's offical: http://billcraft.byethost33.com/TheGameRazer/
 Yes for the most part, now ppl can charge or setup a donation system for their ROMs
 ## We have no responsibility if your ROM gets hacked/modded or republished without your permission
 
-# What is required for building?
-## Linux
-Required Packages are located in: `linux-requirements.txt`\
-(all needs to be installed from your PackageManager)
-## Windows
-*undefined*\
-*requesting help: windows seems to be unstable to build onto...*
-## MAC(OSX)
-*undefined*\
-*requesting help: i've never used a MAC before...*
-
 # Building the Emulator
-## Linux
-open a terminal in the current folder and run: `make` (this compiles the emulator for you to run)\
-to run the emulator, run: `./build/TGR-$(arch) <ROM> <ARGS>`\
-(replace `<ROM>` with the filepath to your ROM | for <ARGS> look down)
-## Windows
-*undefined* (download `.exe` build from github `releases`, *if they exists*)
-## MAC(OSX)
-*undefined*
+## For Linux
+ - All required Packages are located in: `linux-requirements.txt`\
+   (all needs to be installed from your PackageManager)
+ - open a terminal in the current folder and run: `make` (this compiles the emulator for you to run)\
+ - to run the emulator, run: `./build/TGR-$(arch) <ROM> <ARGS>`\
+   (replace `<ROM>` with the filepath to your ROM | for `<ARGS>` look down)
+ - you can leave the `<ROM>` and `<ARGS>` blank and just press `[CTRL]+[O]` once the emulator has started
+## For Windows
+ - *undefined*\
+   *requesting help: windows seems to be unstable to build onto...*
+ - (download `.exe` build from github `releases`, *if they exists*)
+## For MAC(OSX)
+ - *undefined*\
+   requesting help: i've never used a MAC before...*
 
 # Emulator Arguments
 ARGs are not needed to run a ROM but can be useful for debuging...
- - `-s <ms>`     or `--slow <ms>`:     replace <ms> with the delay you want to have per instruction
+ - `-s <ms>`     or `--slow <ms>`:     replace `<ms>` with the delay you want to have per instruction
  - `-d`          or `--debug`:         enabled `debug mode` for telling you whats going on
  - `-pl`         or `--pauseLoad`:     waits for user to press enter after running the BIOS
  - `-wi`         or `--waitInput`:     requires `debug mode` to work, after every instruction it waits for you to continue
- - `-sk <inst>`  or `--skip <inst>`:   replace <inst> with the amount of instructions you want to skip
+ - `-sk <inst>`  or `--skip <inst>`:   replace `<inst>` with the amount of instructions you want to skip
  - `-i`          or `--info`:          prints the current `FramesPerSec`/`InstructionsPerSec` in the terminal every second.
  - `-nu`         or `--noUnicode`:     prints DataDump in ascii instead of unicode
  - `-np`         or `--noPrint`:       disables print instruction to terminal
@@ -80,7 +75,7 @@ ARGs are not needed to run a ROM but can be useful for debuging...
  - `-sl35`       or `--scanLines3x5`:  renders at 3x with scanlines(75%) effect
  - `-px3`        or `--pixelate3x`:    renders at 3x with pixelate effect
  - `-si`         or `--showInput`:     shows inputs
- - `-sav <file>` or `--extSAV <file>`: replace <file> with the .sav file you want to use
+ - `-sav <file>` or `--extSAV <file>`: replace `<file>` with the `.sav` file you want to use
 
 # How to make ROMs and compiling assembly programs:
 check out out the WorkingInProgress offical github page: https://billpc2684.github.io/TGR-PRTO-C/ \
