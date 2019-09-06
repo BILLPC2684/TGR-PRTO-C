@@ -22,7 +22,7 @@ BILLPC2684's offical: http://billcraft.byethost33.com/TheGameRazer/
 ## NOTE: if the emulator crashes or glitch out, check your ROM before reporting(if someone else made the ROM then contact them)
 
 # What is the next expected build version to be updated?
-## that will be Build v0.0.42b at Sep/02/2019
+## that will be Build v0.0.42b at Sep/12/2019
 
 # Why does GitHub updates take so long?
  - i myself(BILLPC2684) is mostly the only one working on this project, so it's a slow process
