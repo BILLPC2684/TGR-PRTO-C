@@ -71,11 +71,11 @@ void GPU_send(int inst, int arg) {
    } else {
     if (CPU.debug == true) { printf("GPU NOTTICE: skipping pixel at [X:0x%x\t,Y:0x%x\t] due to being OutOfBounds...\n", GPU_x, GPU_y); }
    }
-   if (forceRender == true) { GPU.run  = true; }
-   if (delayRender == true) { printf("/**press enter**\n"); getchar(); }
+   if (GPU.forceRender == true) { GPU.run = true; }
+   if (delayRender == true) { printf("GPU frame: **press enter**\n"); getchar(); }
    break;
   case 0x07:// |   update   |  -  |
-   GPU.run  = true;
+   GPU.run = true;
    break;
   default:// nothing
    System_Error(0, inst, CPU.IP, 0, name0);
@@ -94,7 +94,7 @@ int  GPU_recv(int inst) {
    return SH-1;
    break;
   case 0x02:// |  GET FPS   |  +  |
-   return frames;
+   return FPS;
    break;
   case 0x03:// |  GET GPU.R |  +  |
    return buffer[GPU_x][GPU_y][0];

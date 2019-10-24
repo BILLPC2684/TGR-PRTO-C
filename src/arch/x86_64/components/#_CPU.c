@@ -12,11 +12,12 @@
 void *CPU_CLOCK(void *null) {
  double dummy;
  while (true) {
-  while (CPU.reset == true) { CPU.time = 0; }
+  if (CPU.reset == true) { CPU.time = 0; }
   SDL_Delay(1); //0.1 secs
-  CPU.ticked = true;
   CPU.time++;
+//  if (CPU.time% 100 == 0) { printf("%d < CPU.time: %d\n",frames,CPU.time); }
   if (CPU.time%1000 == 0) {
+   CPU.ticked = true;
    if (p == true) {
     dummy = 0.0; for (int i=0;i<0x7FFFFFF+1;i++) { dummy+= RAM[i]/255; }  RAMUsage = dummy;
     dummy = 0.0; for (int i=0;i<0x3FFFFFF+1;i++) { dummy+=VRAM[i]/255; } VRAMUsage = dummy;
@@ -24,15 +25,17 @@ void *CPU_CLOCK(void *null) {
    IPS = CPU.IPC;
    FPS = frames;
    TIPS = CPU.TI;
-   RunQuality = ((double)CPU.IPC/12000000)*100;
+   RunQuality = (double)(CPU.IPC/12000000)*100;
    if (showInfo == true) {
     printf("P1:[A:%d,B:%d,C:%d,X:%d,Y:%d,Z:%d,L:%d,R:%d,Start:%d,Select:%d,Up:%d,Down:%d,Left:%d,Right:%d]\nP2:[A:%d,B:%d,C:%d,X:%d,Y:%d,Z:%d,L:%d,R:%d,Start:%d,Select:%d,Up:%d,Down:%d,Left:%d,Right:%d]\n",UInput[0][0],UInput[1][0],UInput[2][0],UInput[3][0],UInput[4][0],UInput[5][0],UInput[6][0],UInput[7][0],UInput[8][0],UInput[9][0],UInput[10][0],UInput[11][0],UInput[12][0],UInput[13][0],UInput[0][1],UInput[1][1],UInput[2][1],UInput[3][1],UInput[4][1],UInput[5][1],UInput[6][1],UInput[7][1],UInput[8][1],UInput[9][1],UInput[10][1],UInput[11][1],UInput[12][1],UInput[13][1]);
-    printf("FPS: %d\t | IPS: %d\t | TotalRan: %d\t| CPU Run Quality: %.2lf%%\n",FPS,(double)IPS/8,TIPS,RunQuality);
+    printf("FPS: %d\t | IPS: %d\t | TotalRan: %d\t| CPU Run Quality: %.2lf%%\n",FPS,(double)IPS,TIPS,RunQuality);
     if (p == true) {
      printf("RAM Usage: %.0lf bytes/%d (%.2lf%% full)\t| VRAM Usage: %.0lf bytes/%d (%.2lf%% full)\n",RAMUsage*100,0x7FFFFFF,(RAMUsage/0x7FFFFFF)*100,VRAMUsage*100,0x3FFFFFF,(VRAMUsage/0x3FFFFFF)*100);
     }
 //    printf(">>>> %d\n",CPU.IPC/12000000);
    }
+  }
+  if (CPU.time%1100 == 0) {
    CPU.IPC = 0;
    frames = 0;
   }
@@ -60,6 +63,10 @@ void *CPU_EXEC(void *null) {
  FILE      *SAV_file;
  char       SN;
  FileStruct SAV;
+ LED[0] = 0xFF;
+ LED[1] = 0x16;
+ LED[2] = 0x16;
+
 /* if (p == false) {
   getChar("```````````````", SW/2-7*8, SH/2-8, 255, 16, 16,true,false);
   getChar("```````````````", SW/2-7*8, SH/2,   255, 16, 16,true,false);
@@ -90,8 +97,8 @@ void *CPU_EXEC(void *null) {
   if (!strcmp(argv[i],"--pixelate"     ) | !strcmp(argv[i],"-px"  )) { zoom            =    3; }
   if (!strcmp(argv[i],"--render3x"     ) | !strcmp(argv[i],"-3x"  )) { zoom            =    4; } //3x Video
   if (!strcmp(argv[i],"--scanLines3x"  ) | !strcmp(argv[i],"-sl3" )) { zoom            =    5; }
-  if (!strcmp(argv[i],"--scanLines3x5" ) | !strcmp(argv[i],"-sl35")) { zoom            =  5.5; }
-  if (!strcmp(argv[i],"--pixelate3x"   ) | !strcmp(argv[i],"-px3" )) { zoom            =    6; }
+  if (!strcmp(argv[i],"--scanLines3x5" ) | !strcmp(argv[i],"-sl35")) { zoom            =    6; }
+  if (!strcmp(argv[i],"--pixelate3x"   ) | !strcmp(argv[i],"-px3" )) { zoom            =    7; }
   if (!strcmp(argv[i],"--showInput"    ) | !strcmp(argv[i],"-si"  )) { ShowInput       = true; }
   if (!strcmp(argv[i],"--extSAV"       ) | !strcmp(argv[i],"-sav" )) { i++; extSAV     = argv[i]; }
  }
@@ -132,7 +139,7 @@ void *CPU_EXEC(void *null) {
  }
  if (FN[0]+FN[1]+FN[2]+FN[3] == "/dev") { printf("EMU Nottice: \"/dev\" was detected in the filename, SAV won't save propperly, use \"--extSAV <address>\" to prevent this probblem !!Do not provide the ROM partition for SAV!!"); }
  FileStruct ROM = load(FN,0);
- if (ROM.found == false) { return 0; }
+ if (ROM.found == false) { CPU.running = false; return 0; } else { CPU.running = true; }
  if (ROM.size/1024/1024 >= 16) { printf("EMU ERROR: the ROM given was too big(%d MB/16 MB)",ROM.size/1024/1024); return 0; }
  if (extSAV == "") {
   char SN[strlen(FN)+1];
@@ -170,11 +177,14 @@ void *CPU_EXEC(void *null) {
  bool tmp_debug = CPU.debug;
  if (skip > 0) { CPU.debug = false; }
  CPU.IPC = 12000000; //### THIS IS HERE TO FIX A PROBBLEM WITH THE TOTALRAN COUNT ###
+// pthread_t run_CPU0,run_CPU1;
+// pthread_create(&run_CPU0, NULL, CPU_EXEC, 0);
+// pthread_create(&run_CPU1, NULL, CPU_EXEC, 1);
  while(CPU.running) {
   if (skipBIOS == true && CPU.IS == BIOS.data) {
    CPU.IS = ROM.data; CPU.ISz = ROM.size;
-   if (ROM.data[0] == 0) { CPU.IP =  4;}
-   else {                  CPU.IP = 12;}
+   if (ROM.data[0] == 0) { CPU.IP = 0x4;}
+   else {                  CPU.IP = 0xC;}
   }
   if (CPU.reset == true) {
    GPU_reset();
@@ -187,7 +197,7 @@ void *CPU_EXEC(void *null) {
    CPU.SP = RAMSIZ;
    CPU.BP = RAMSIZ;
    FPS = 0;
-//   CPU_lock = false;
+   CPU.pause = false;
    CPU.time = 0;
    for (int i=0;i<8;i++) { CPU.REGs[i] = 0; }
    bool tmp_debug = CPU.debug;
@@ -200,7 +210,7 @@ void *CPU_EXEC(void *null) {
     for (int i=0;i<8;i++) { strcat(TN,&ROM.data[i+4]); }
     for (int i=0;i<23;i++) { Title_Name[i] = TN[i]; }
     Title_lock = false;
-   }
+   } SDL_Delay(1000);
   }
   if (CPU.TI > skip && tmp_debug == 1) { CPU.debug = tmp_debug; tmp_debug = 0; }
   if (Exit == true) { break; }
@@ -212,9 +222,10 @@ void *CPU_EXEC(void *null) {
   IMM  = (IMM |  CPU.IS[CPU.IP+4]) << 8;       //8 |
   IMM |=         CPU.IS[CPU.IP+5];             //8 /'
   if (CPU.debug == true) {
-   printf("\nIC: 0x%x/0x%x   \t>> [",CPU.IP,CPU.ISz-1);
+   printf("\nIC: 0x%x/0x%x   \t>> [",CPU.IP,CPU.ISz);
    for (int i=0; i < 6; i++) { if (CPU.IS[CPU.IP+i] < 0x10) { printf("0x0%x",CPU.IS[CPU.IP+i]); } else { printf("0x%x",CPU.IS[CPU.IP+i]); } if (i < 5) { printf(", "); } }
-   printf("] | [A:%c, B:%c, C:%c, IMM:0x",REG[A],REG[B],REG[C]);
+   printf("]  [A:%i, B:%i, C:%i, IMM:0x%i",A,B,C);
+   printf("] | [A:%c, B:%c, C:%c, IMM:0x%i",REG[A],REG[B],REG[C]);
    if        (IMM < 0x10) {       printf("000000%x]\n\\REGs: [",IMM);
    } else if (IMM < 0x100) {      printf("00000%x]\n\\REGs: [",IMM);
    } else if (IMM < 0x1000) {     printf("0000%x]\n\\REGs: [",IMM);
@@ -358,7 +369,7 @@ void *CPU_EXEC(void *null) {
      CPU.IP = ((CPU.REGs[A] << 16) | CPU.REGs[B])-6;
     } else {
      if (CPU.debug == true) { printf("JMPIMM\n\n"); }
-     CPU.IP = (IMM % 0x1000000)-6;
+     CPU.IP = IMM-6;
     } break;
    case 0x0E:
     if (CPU.debug == true) { printf("LED\n\n");        //|/|-|-|0x-XXXXXX|if C == 1 then IC = A..B else IC = IMM                                                     |
@@ -381,7 +392,7 @@ void *CPU_EXEC(void *null) {
     if (CPU.debug == true) { printf("CMP<: "); }    //|+|+|/|0x-------|if A < B: IC=IC+1(expected JMP) else IC=IC+2                                                |
     if (C == 0) { if (CPU.REGs[A] <  CPU.REGs[B]) { if (CPU.debug == true) {  printf("True\n");} } else { if (CPU.debug == true) { printf("False\n");} CPU.IP = CPU.IP + 6; }
     } else {      if (CPU.REGs[A] <  IMM%0x10000) { if (CPU.debug == true) {  printf("True\n");} } else { if (CPU.debug == true) { printf("False\n");} CPU.IP = CPU.IP + 6; }
-    if (CPU.REGs[A] < CPU.REGs[B]) { if (CPU.debug == true) {  printf("True\n");} } else { if (CPU.debug == true) { printf("False\n");} CPU.IP = CPU.IP + 6; }
+    //if (CPU.REGs[A] < CPU.REGs[B]) { if (CPU.debug == true) {  printf("True\n");} } else { if (CPU.debug == true) { printf("False\n");} CPU.IP = CPU.IP + 6; }
     } break;
    case 0x11:
     if (CPU.debug == true) { printf("CMP>: "); }    //|+|+|/|0x-------|if A > B: IC=IC+1(expected JMP) else IC=IC+2                                                |
@@ -476,7 +487,7 @@ void *CPU_EXEC(void *null) {
    case 0x1A:
     if (CPU.debug == true) { printf("IRROM\n"); }   //|+|-|-|0x-XXXXXX|A = ROM.data[IMM]                                                                           |
     CPU.REGs[A] = ROM.data[IMM % CPU.ISz];
-//    printf(">>>>>>  Adr:0x%x/%d, data:0x%x (ImmReadROM)  <<<<<<\n",IMM % CPU.ISz,IMM % CPU.ISz, CPU.REGs[A]);
+//    printf(">>>>>>  Adr:0x%x/%d, data:0x%x (ImmReadROM)  <<<<<<\n",IMM & (CPU.ISz+1), ROM.data[IMM & (CPU.ISz+1)]);
     break;
    case 0x1B:
     if (CPU.debug == true) { printf("HALT\n"); }    //|-|-|-|0x------X|halts index IMM located in [[HALT-INFO]]                                                    |
@@ -492,7 +503,7 @@ void *CPU_EXEC(void *null) {
       getChar("+----[EMU]----+", SW/2-7*8, SH/2-8, 255, 128, 128, true, true);
       getChar("|CPU HALTED...|", SW/2-7*8, SH/2,   255, 128, 128, true, true);
       getChar("+-------------+", SW/2-7*8, SH/2+8, 255, 128, 128, true, true);
-      CPU.running = 0;
+      GPU.run = true; CPU.running = 0;
       break;
      case 0x2: //|resets the Audio                        |AUDIO      |
       break;
@@ -721,7 +732,7 @@ void *CPU_EXEC(void *null) {
     break;
    case 0x24:
     if (CPU.debug == true) { printf("IRBIOS\n"); }   //|+|-|-|0xXXXXXXX|C = BIOS.data[IMM]                                                                          |
-    CPU.REGs[A] = IMM % CPU.ISz;
+    CPU.REGs[A] = IMM & CPU.ISz;
     break;
    case 0x25:
     if (CPU.debug == true) { printf("POP "); }       //|+|-|-|0x-------|Pushes A into stack                                                                         |
@@ -813,8 +824,8 @@ void *CPU_EXEC(void *null) {
     RAM[CPU.SP--] = (uint8_t)(tmp2 & 0xff);
     RAM[CPU.SP--] = (uint8_t)(tmp2 >> 8);
     break;
-   case 0x2A:
-    if (B == 0) {                                    //|+|/|-|0x-------|Sets A as CPU Clock | B(2-bit) if true[1] will reset the CPU clock                          |
+   case 0x2A:                                        //|+|/|-|0x-------|Sets A as CPU Clock | B(2-bit) if true[1] will reset the CPU clock                          |
+    if (B == 0) {
      if (CPU.debug == true) { printf("GCLK: %d\n",CPU.time); }
     } else {
      if (CPU.debug == true) { printf("GCLK: resetting...\n"); }
@@ -828,7 +839,7 @@ void *CPU_EXEC(void *null) {
       if (devInfo == true) {
        printf("\DevInfo: TotalRan: %ld\n",CPU.TI);
       }
-      if (waitInput == false) {
+      if (CPU.debug == true || devInfo == true) {
        printf("/**press enter**\n");
        getchar();
       }
@@ -837,7 +848,7 @@ void *CPU_EXEC(void *null) {
      }
     }
     break;
-   case 0x2C:
+/*   case 0x2C:
     break;
    case 0x2D:
 
@@ -854,13 +865,54 @@ void *CPU_EXEC(void *null) {
    case 0x31:
 
     break;
+   case 0x32:
+
+    break;
+   case 0x33:
+
+    break;
+   case 0x34:
+
+    break;
+   case 0x35:
+
+    break;
+   case 0x36:
+
+    break;
+   case 0x37:
+
+    break;
+   case 0x38:
+
+    break;
+   case 0x39:
+
+    break;
+   case 0x3A:
+
+    break;
+   case 0x3B:
+
+    break;
+   case 0x3C:
+
+    break;
+   case 0x3D:
+
+    break;
+   case 0x3E:
+
+    break;
+   case 0x3F: //end of a 6-bit value
+
+    break;*/
    case 0xFF:
     if (CPU.debug == true) { printf("NOP\n"); }  //|+|+|/|0xXXXXXXX|RAMPointer = IMM                                                                            |
-  break;
+    break;
    default:
     if (CPU.debug == true) { printf("UNKNOWN\n  \\"); }
-    System_Error( 0, CPU.IS[CPU.IP], CPU.IP, -1, "CPU");
-    CPU.running = 0;
+    CPU.running = 0; System_Error( 0, CPU.IS[CPU.IP], CPU.IP, -1, "CPU");
   }
   CPU.IP = CPU.IP + 6;
   CPU.IPC++;
@@ -882,16 +934,8 @@ void *CPU_EXEC(void *null) {
   } else {
    //SDL_Delay(i/1000);
    if (stopatloadrom == false && CPU.TI > skip) {
-    if (slowdown > 0 && slowdown < 12000000 && CPU.IPC/(12000000-slowdown) > 0) {
-     SDL_Delay(CPU.IPC/(12000000-slowdown));
-    } else if (CPU.IPC/(12000000-832) > 0) {
-     //printf("%d\n",CPU.IPC-12000000);
-     if (CPU.IPC%(12000*8) == 0) {
-      while (CPU.ticked == false) {
-       SDL_Delay(0); //CPU.IPC/(12000000-832));
-      } CPU.ticked = false;
-     }
-    }
+    if (slowdown > 0 && slowdown < 12000000 && CPU.IPC/(12000000-slowdown) > 0) { SDL_Delay(CPU.IPC/(12000000/slowdown)); }
+    if (CPU.IPC%12000000 == 0) { CPU.ticked = false; while (CPU.ticked == false) { SDL_Delay(0); } }
    }
   }
  }

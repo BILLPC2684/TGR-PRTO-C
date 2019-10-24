@@ -7,19 +7,20 @@ loop0:
  jmp [loop0]
 
 tick:
+ disp a
 ; drecv a,0x01,0x00
 ; disp a
- gclk a,1
+ pop a
  inc b
- disp b
  cmpeq b,60
   call [min]
+ disp a
+ disp b
+ push a
+ gclk a,1
  ret
 
 min:
  mov b,0
- push a
- mov a,256
- disp a
- pop a
+ inc a
  ret

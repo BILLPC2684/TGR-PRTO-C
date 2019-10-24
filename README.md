@@ -9,9 +9,9 @@ Official TGR Github: https://billpc2684.github.io/TGR-PRTO-C/ (WIP)\
 BILLPC2684's offical: http://billcraft.byethost33.com/TheGameRazer/
 
 # Is the current build runnable? (will update)
-## For Build: v0.0.37c Alpha
- - Runnable Build:  `Yes`
- - Stable CPU EMU:  `Yes?`     (Still running tests | Not completed)
+## For Build: v0.0.42a Alpha
+ - Runnable Build:  `Yes`      [theres a slight glitch with clock usage...]
+ - Stable CPU EMU:  `Yes`      (Not completed)
  - Stable Memory:   `Yes`      (128 MB of RAM | 64 MB of VRAM)
  - Has Video:       `Yes`      (SDL | uses OpenGL)
  - Has Audio:       `No`       (Requesting help)
@@ -22,7 +22,7 @@ BILLPC2684's offical: http://billcraft.byethost33.com/TheGameRazer/
 ## NOTE: if the emulator crashes or glitch out, check your ROM before reporting(if someone else made the ROM then contact them)
 
 # What is the next expected build version to be updated?
-## that will be Build v0.0.42b at Sep/12/2019
+## that will be Build v0.0.46x at Dec/xx/2019
 
 # Why does GitHub updates take so long?
  - i myself(BILLPC2684) is mostly the only one working on this project, so it's a slow process
@@ -32,7 +32,7 @@ BILLPC2684's offical: http://billcraft.byethost33.com/TheGameRazer/
 ## PLEASE BE PATIENT... Updates will come ASAP on schedule(hopefully)
 
 # Are ROMs free?
-Yes for the most part, now ppl can charge or setup a donation system for their ROMs
+Yes for the most part, now people can charge or setup a donation system for their ROMs
 ## We have no responsibility if your ROM gets hacked/modded or republished without your permission
 
 # Building the Emulator
@@ -75,7 +75,7 @@ ARGs are not needed to run a ROM but can be useful for debuging...
  - `-sl35`       or `--scanLines3x5`:  renders at 3x with scanlines(75%) effect
  - `-px3`        or `--pixelate3x`:    renders at 3x with pixelate effect
  - `-si`         or `--showInput`:     shows inputs
- - `-sav <file>` or `--extSAV <file>`: replace `<file>` with the `.sav` file you want to use
+ - `-sav <file>` or `--extSAV <file>`: replace `<file>` with the `.sav` file you want to use !!not fully tested!!
 
 # How to make ROMs and compiling assembly programs:
 check out out the WorkingInProgress offical github page: https://billpc2684.github.io/TGR-PRTO-C/ \

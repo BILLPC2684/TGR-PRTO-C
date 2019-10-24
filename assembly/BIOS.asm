@@ -1,6 +1,6 @@
 %NOCHECKSUM
 
-jmp [main]
+jmp [start]
 
 image:{
  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x11,0x11,0x10,0x11,0x10,0x00,0x00,
@@ -27,10 +27,27 @@ image:{
  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x06,0x60,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 }
 
+;--[[Checks if the ROM is for TGR]]--
+start:
+ rrom a,0x000001
+ cmpeq a,0x54
+  jmp [continue1]
+ hlt
+continue1:
+ rrom a,0x000002
+ cmpeq a,0x47
+  jmp [continue2]
+ hlt
+continue2:
+ rrom a,0x000003
+ cmpeq a,0x52
+  jmp [main]
+ hlt
+
 main:
 ;--[[COLORPALLET]]--
 mov a,[image]    ;sprite adress
-mov b,74         ;X
+mov b,60         ;X
 mov c,96         ;Y
 
 ;--1
@@ -139,7 +156,7 @@ plot4x:
 
 loop0:
  mov h,264 ;height (21*8) 180+167
- mov d,412 ;width (43*8) 
+ mov d,398 ;width (43*8) / 412
 
  cmpgt c,h
   jmp [loop0done]
@@ -148,10 +165,10 @@ loop0:
   jmp [reset_x]
   
   mov g,0
-  rbios g,a, f      ;read pixel
+  rbios g,a,f       ;read pixel
   split f,g,f,1     ;split it into lower and upper
   call [plot4x]
-  mov f,g
+  mov g,f
   call [plot4x]
 ;  sub b,1,b
   dsend g,0x0,0x06
@@ -160,7 +177,7 @@ loop0:
   jmp [loop1]
  
  reset_x:
-  mov b,68
+  mov b,60
   add c,8,c
   jmp [loop0]
 
@@ -178,7 +195,7 @@ tick:
  gclk a,1
  inc c
  add b,1000,b
- cmplt c,6
+ cmplt c,4
   jmp [tloop]
 
 mov d,0
@@ -186,46 +203,27 @@ mov c,0
 mov f,0xF
 drecv d,0x0,0x00 ;width
 drecv h,0x0,0x01 ;height
-ploop0:
+cloop0:
  cmpgt c,h
- jmp [loop2done]
-ploop1:
+ jmp [launch]
+cloop1:
  cmpgt b,d
- jmp [preset_x]
+ jmp [creset_x]
  
  dsend b,0x0,0x00  ;set xpos
  dsend c,0x0,0x01  ;set ypos
  dsend f,0x0,0x06
  add b,1,b
- jmp [ploop1]
+ jmp [cloop1]
 
-preset_x:
- dsend g,0x0,0x07  ;updating screen
+creset_x:
+ dsend g,0x0,0x07 ;updating screen
  mov b,0
  add c,1,c
- jmp [ploop0]
+ jmp [cloop0]
 
 ;find TGR at the start of a ROM
-loop2done:
- rrom a,0x000001
- mov b,0x54
- cmpeq a,b
-  jmp [continue1]
- jmp [stop1]
-continue1:
- rrom a,0x000002
- mov b,0x47
- cmpeq a,b
-  jmp [continue2]
- jmp [stop1]
-continue2:
- rrom a,0x000003
- mov b,0x52
- cmpeq a,b
-  jmp [continue3]
-stop1:
- hlt
-continue3:
+launch:
  mov a,0
  mov b,0
  mov c,0
@@ -240,11 +238,11 @@ continue3:
 
 launch0:
  mov h,0
- exec 1,4
+ exec 1,0x4
  
 launch1:
  mov h,0
- exec 1,12 ;8 letter name
+ exec 1,0xc ;8 letter name
 
 ;ROM Header:
 ; 0\type

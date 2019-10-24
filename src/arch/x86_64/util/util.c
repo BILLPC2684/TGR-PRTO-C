@@ -97,7 +97,7 @@ FileStruct load(char *address, int make) {
   } else {
    printf("EMU WARNING: file \"%s\" was not found(your data could be lost if existsed), attempting to create local file...", address);
    FILE *SAV_file = fopen(address, "wb");
-   fwrite(calloc(SAVSIZ, sizeof(*SAV)), SAVSIZ-1, 8, SAV_file);
+   fwrite(calloc(SAVSIZ, sizeof(SAV)), SAVSIZ-1, 8, SAV_file);
    fclose(SAV_file);
 //   file.fp = fopen(address, "wb+");
 //   file.data = calloc(SAVSIZ, sizeof(*SAV));
