@@ -61,7 +61,7 @@ int main(int c, char *v[]) {
  char TN[1024] = "TheGameRazer - [NO ROM]"; for (int i=0;i<23;i++) { Title_Name[i] = TN[i]; } Title_lock = false;
  argc = c; for (int i=0; i<argc; i++) { argv[i] = v[i]; }  //printf(">>ARG[%d]: %s\n",i,argv[i]);
  
- printf("Loading TGR-PRTO v0.0.40b Alpha Build...\n"); //GOAL: v0.0.42b
+ printf("Loading TGR-PRTO v0.0.42b Alpha Build...\n"); //GOAL: v0.0.42b
  
  SDL_Init(SDL_INIT_VIDEO);
  SDL_CreateWindowAndRenderer(SW, SH, 2, &window, &GPU_SCREEN);
