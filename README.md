@@ -9,7 +9,7 @@ Official TGR Github: https://billpc2684.github.io/TGR-PRTO-C/ (WIP)\
 BILLPC2684's offical: http://billcraft.byethost33.com/TheGameRazer/
 
 # Is the current build runnable? (will update)
-## For Build: v0.0.42a Alpha
+## For Build: v0.0.42b Alpha
  - Runnable Build:  `Yes`      [theres a slight glitch with clock usage...]
  - Stable CPU EMU:  `Yes`      (Not completed)
  - Stable Memory:   `Yes`      (128 MB of RAM | 64 MB of VRAM)
