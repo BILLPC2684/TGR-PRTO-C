@@ -1,5 +1,7 @@
 ![alt text](https://github.com/BILLPC2684/TGR-PRTO-C/raw/master/bin/TGR-logo(8x).png)
 
+# We moved over to https://github.com/BILLPC2684/TGR-PRTO-JS
+
 # TGR-PRTO-C
 TheGameRazer is a custom retro 16-bit style emulator made in C,\
 this is still in prototype stages...
