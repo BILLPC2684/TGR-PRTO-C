@@ -8,7 +8,7 @@ this is still in prototype stages...
 
 # Websites:
 Official TGR Github: https://billpc2684.github.io/TGR-PRTO-C/ (WIP)\
-BILLPC2684's offical: http://billcraft.byethost33.com/TheGameRazer/
+BILLPC2684's offical: http://Koranva-Forest.com/TheGameRazer/
 
 # Is the current build runnable? (will update)
 ## For Build: v0.0.42b Alpha
